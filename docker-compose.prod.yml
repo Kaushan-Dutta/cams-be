@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - crmp_postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: crimewatch_prod
+      POSTGRES_PASSWORD: crimewatch_prod
+    restart: always
+    networks:
+      - mynetwork
+
+volumes:
+  crmp_postgres:
+
+networks:
+  mynetwork:
