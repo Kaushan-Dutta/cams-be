@@ -1,5 +1,9 @@
 node_modules
 .env
+
 dist
-./prisma/migrations
+
+prisma/migrations
 package-lock.json
+
+docker-compose.prod.yml
