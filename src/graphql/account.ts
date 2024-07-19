@@ -1,4 +1,5 @@
-import UserService from "../services/user"
+import AccountService from '../services/account'
+import { AccountType } from '../types/account'
 
 const account_typedefs = `#graphql
     enum Role {
@@ -19,34 +20,28 @@ const account_typedefs = `#graphql
 `
 
 const account_query = `#graphql
-        getCurrAccount: Account
         accountLogin(email: String!, password: String!): Response
 `
 
-const account_mutation = `#graphql
-        accountRegister(email: String!, password: String!): Response
-`
 
 const queries = {
-    getCurrAccount: () => {
-    },
-    accountLogin: (parent: any, args: { email: string; password: string }) => {
+    
+    accountLogin: async (parent: any, args: { email: string; password: string }) => {
+        console.log(args);
+        try {
+            const accountService = await AccountService.accountLogin(args);
+            return accountService;
+        }
+        catch (err) {
+            return err
+        }
     }
 }
 
-const mutations = {
-    accountRegister: async(parent: any, args: { email: string; password: string }) => {
-        console.log(args);
-        const userService = UserService.createUser(args);
-        return userService;
-    }
-}
 export const Account = {
     typedefs: account_typedefs,
     queries: account_query,
-    mutations: account_mutation,
     resolvers: {
         Query: queries,
-        Mutation: mutations
     }
 }

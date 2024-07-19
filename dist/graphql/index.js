@@ -8,14 +8,10 @@ const createApolloServer = new server_1.ApolloServer({
        ${account_1.Account.typedefs},
         type Query{
               ${account_1.Account.queries}
-        },
-        type Mutation{
-            ${account_1.Account.mutations}
         }
     `,
     resolvers: {
-        Query: account_1.Account.resolvers.Query,
-        Mutation: account_1.Account.resolvers.Mutation
+        Query: account_1.Account.resolvers.Query
     }
 });
 exports.createApolloServer = createApolloServer;

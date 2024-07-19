@@ -6,14 +6,10 @@ const createApolloServer = new ApolloServer({
        ${Account.typedefs},
         type Query{
               ${Account.queries}
-        },
-        type Mutation{
-            ${Account.mutations}
         }
     `,
     resolvers: {
-        Query: Account.resolvers.Query,
-        Mutation: Account.resolvers.Mutation
+        Query:Account.resolvers.Query
     }
 });
 

@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Account = void 0;
-const user_1 = __importDefault(require("../services/user"));
+const account_1 = __importDefault(require("../services/account"));
 const account_typedefs = `#graphql
     enum Role {
         ADMIN
@@ -32,31 +32,24 @@ const account_typedefs = `#graphql
     }
 `;
 const account_query = `#graphql
-        getCurrAccount: Account
         accountLogin(email: String!, password: String!): Response
 `;
-const account_mutation = `#graphql
-        accountRegister(email: String!, password: String!): Response
-`;
 const queries = {
-    getCurrAccount: () => {
-    },
-    accountLogin: (parent, args) => {
-    }
-};
-const mutations = {
-    accountRegister: (parent, args) => __awaiter(void 0, void 0, void 0, function* () {
+    accountLogin: (parent, args) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(args);
-        const userService = user_1.default.createUser(args);
-        return userService;
+        try {
+            const accountService = yield account_1.default.accountLogin(args);
+            return accountService;
+        }
+        catch (err) {
+            return err;
+        }
     })
 };
 exports.Account = {
     typedefs: account_typedefs,
     queries: account_query,
-    mutations: account_mutation,
     resolvers: {
         Query: queries,
-        Mutation: mutations
     }
 };
