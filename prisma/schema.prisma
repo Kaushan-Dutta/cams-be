@@ -18,21 +18,25 @@ enum Role {
   ADMIN
   AGENCY
 }
+
 enum ApplicationStatus {
   PENDING
   APPROVED
   REJECTED
 }
+
 enum MessageType {
   PERSONAL
   BROADCAST
 }
+
 enum CaseStatus {
   PENDING
   CASE_ASSIGNED
   PROGRESS
   REJECTED
 }
+
 enum CaseType {
   CYBER
   MISSING
@@ -41,49 +45,50 @@ enum CaseType {
   ACCIDENT
   OTHER
 }
+
 model Account {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  password String
-  role     Role    @default(USER)
-  agency   Agency?
-  location Location?
-  NotificationRecv Notification[] @relation("ReceivedNotifications")
-  NotificationSent Notification[] @relation("SentNotifications")
-  alert    Alert[]
-  case     CaseApplication[]
+  id               String            @id @default(uuid())
+  email            String            @unique
+  password         String
+  role             Role              @default(USER)
+  agency           Agency?
+  location         Location?
+  NotificationRecv Notification[]    @relation("ReceivedNotifications")
+  NotificationSent Notification[]    @relation("SentNotifications")
+  alert            Alert[]
+  case             CaseApplication[]
 }
 
 model Agency {
-  id        String   @id @default(uuid())
-  name      String
-  phone     String
-  pincode   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  account   Account  @relation(fields: [accountId], references: [id])
-  accountId String   @unique
+  id          String            @id @default(uuid())
+  name        String
+  phone       String
+  pincode     String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  account     Account           @relation(fields: [accountId], references: [id])
+  accountId   String            @unique
   application CaseApplication[]
 }
 
-model Location{
-  id       String   @id @default(uuid())
+model Location {
+  id        String  @id @default(uuid())
   longitude Float
   latitude  Float
-  account   Account  @relation(fields: [accountId], references: [id])
-  accountId String   @unique
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String  @unique
 }
 
-model AgencyApplication{
-  id       String   @id @default(uuid())
-  email    String
-  name     String
-  phone    String
-  pincode  String
-  document String
+model AgencyApplication {
+  id        String            @id @default(uuid())
+  email     String
+  name      String
+  phone     String
+  pincode   String
+  document  String
   longitude Float
   latitude  Float
-  status   ApplicationStatus   @default(PENDING)
+  status    ApplicationStatus @default(PENDING)
 }
 
 model Notification {
@@ -97,42 +102,57 @@ model Notification {
   receiver   Account?    @relation("ReceivedNotifications", fields: [receiverId], references: [id])
   receiverId String
 }
-model Evidence{
-  id       String   @id @default(uuid())
-  url      String?
-  file   String?
+
+model Evidence {
+  id          String          @id @default(uuid())
+  url         String?
+  file        String?
   description String
-  case     CaseApplication @relation(fields: [caseId], references: [id])
-  caseId   String
+  case        CaseApplication @relation(fields: [caseId], references: [id])
+  caseId      String
 }
 
-model CaseApplication{
-  id       String   @id @default(uuid())
-  type     CaseType
-  name     String
-  phone    String
-  pincode String
-  evidence Evidence[]
-  document String?
-  status   ApplicationStatus   @default(PENDING)
-  account Account  @relation(fields: [accountId], references: [id])
+model CaseApplication {
+  id        String            @id @default(uuid())
+  type      CaseType
+  name      String
+  phone     String
+  pincode   String
+  evidence  Evidence[]
+  document  String?
+  status    ApplicationStatus @default(PENDING)
+  account   Account           @relation(fields: [accountId], references: [id])
   accountId String
-  createdAt DateTime @default(now())
-  agency   Agency? @relation(fields: [agencyId], references: [id])
-  agencyId String
+  createdAt DateTime          @default(now())
+  agency    Agency?           @relation(fields: [agencyId], references: [id])
+  agencyId  String
 }
-model Alert{
-  id       String   @id @default(uuid())
-  latitude Float
+
+model Alert {
+  id        String            @id @default(uuid())
+  latitude  Float
   longitude Float
-  agency   Account? @relation(fields: [agencyId], references: [id])
-  agencyId String
-  status   ApplicationStatus   @default(PENDING)
+  agency    Account?          @relation(fields: [agencyId], references: [id])
+  agencyId  String
+  status    ApplicationStatus @default(PENDING)
 }
-model Event{
-  id       String   @id @default(uuid())
-  name     String
-  location String
-  date     DateTime
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  location    String
+  date        DateTime
   description String
 }
+
+model UserIdentityCard {
+  id       String            @id @default(uuid())
+  name     String
+  phone    String
+  pincode  String
+  document String
+  profile  String
+  status   ApplicationStatus @default(PENDING)
+}
+
+

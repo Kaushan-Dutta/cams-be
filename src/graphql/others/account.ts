@@ -1,5 +1,5 @@
 //@ts-nocheck
-import AccountService from '../services/account'
+import AccountService from '../../services/account'
 import { InputProps } from '../types'
 
 const typedefs = `#graphql

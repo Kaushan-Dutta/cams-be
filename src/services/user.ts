@@ -1,6 +1,7 @@
-
+//@ts-nocheck
 class UserService{
-    public static userRegister(email:string, password:string){
+    public static userRegister(payload){
+        const {email,password} = payload
         console.log(email,password);
         return {message:"User Register success"}
     }

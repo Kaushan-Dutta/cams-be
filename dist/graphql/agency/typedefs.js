@@ -36,6 +36,12 @@ exports.typedefs = `#graphql
         description: String!
         caseId:String!
     },
+    input EvidenceInput {
+        url: String
+        file: String
+        description: String!
+        caseId:String!
+    }
     enum CaseType {
         CYBER
         MISSING
