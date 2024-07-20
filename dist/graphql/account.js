@@ -13,8 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Account = void 0;
+//@ts-nocheck
 const account_1 = __importDefault(require("../services/account"));
-const account_typedefs = `#graphql
+const typedefs = `#graphql
     enum Role {
         ADMIN
         USER
@@ -35,8 +36,8 @@ const account_query = `#graphql
         accountLogin(email: String!, password: String!): Response
 `;
 const queries = {
-    accountLogin: (parent, args) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(args);
+    accountLogin: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside", args);
         try {
             const accountService = yield account_1.default.accountLogin(args);
             return accountService;
@@ -47,9 +48,9 @@ const queries = {
     })
 };
 exports.Account = {
-    typedefs: account_typedefs,
+    typedefs: typedefs,
     queries: account_query,
     resolvers: {
-        Query: queries,
+        queries: queries,
     }
 };

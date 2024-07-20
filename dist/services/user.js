@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UserService {
-    static createUser(payload) {
-        const { email, password } = payload;
+    static userRegister(email, password) {
         console.log(email, password);
-        return { message: "User created successfully" };
+        return { message: "User Register success" };
     }
 }
 exports.default = UserService;

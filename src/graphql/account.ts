@@ -1,7 +1,8 @@
+//@ts-nocheck
 import AccountService from '../services/account'
-import { AccountType } from '../types/account'
+import { InputProps } from '../types'
 
-const account_typedefs = `#graphql
+const typedefs = `#graphql
     enum Role {
         ADMIN
         USER
@@ -26,8 +27,8 @@ const account_query = `#graphql
 
 const queries = {
     
-    accountLogin: async (parent: any, args: { email: string; password: string }) => {
-        console.log(args);
+    accountLogin: async (parent,args,context) => {
+        console.log("Args:Outside",args);
         try {
             const accountService = await AccountService.accountLogin(args);
             return accountService;
@@ -39,9 +40,9 @@ const queries = {
 }
 
 export const Account = {
-    typedefs: account_typedefs,
+    typedefs: typedefs,
     queries: account_query,
     resolvers: {
-        Query: queries,
+        queries: queries,
     }
 }
