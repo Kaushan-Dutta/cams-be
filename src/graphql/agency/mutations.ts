@@ -1,5 +1,4 @@
-
 export const mutations = `#graphql
-    agencyRegister(args:AgencyApplyForm):Response ,
+    agencyRegister(data:AgencyApplyForm):Response ,
     updateAlert(id:ID,status:Int): Response,
 `

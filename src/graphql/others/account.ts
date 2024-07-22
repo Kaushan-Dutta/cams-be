@@ -31,10 +31,12 @@ const queries = {
         console.log("Args:Outside",args);
         try {
             const accountService = await AccountService.accountLogin(args);
-            return accountService;
+            if(accountService){
+                return {message:"User Logged In",data:accountService}            
+            }
         }
         catch (err) {
-            return err
+            return {message:err.message}
         }
     }
 }

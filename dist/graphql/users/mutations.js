@@ -2,5 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mutations = void 0;
 exports.mutations = `#graphql
-    caseRegister(args:CaseFormInput):Response,
+    caseRegister(data:CaseFormInput):Response,
+    register(email:String!,password:String!):Response,
 `;
+// mutation Register($email:String!,$password:String!){
+//     register(email:$email,password:$password){
+//       message
+//     }
+//   }

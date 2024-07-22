@@ -11,7 +11,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: crimewatch_dev
       POSTGRES_PASSWORD: crimewatch_dev
-    restart: always
+
+    restart: always 
     networks:
       - mynetwork
 

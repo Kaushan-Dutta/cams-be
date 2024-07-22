@@ -7,6 +7,5 @@ export const typedefs=`#graphql
         evidence: [EvidenceInput]
         document: String
         
-    },
-    
+    }   
 `

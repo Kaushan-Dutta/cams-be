@@ -1,10 +1,21 @@
 //@ts-nocheck
+import { db } from "../lib/db.config";
 
 class AgencyService{
-    public static agencyApply(payload){
-        const {email, name,phone,address,document} = payload
-        console.log(payload);
-        return {message:"Application Submitted"}
+    public static agencyRegister(payload){
+        const {email, name,phone,document,pincode,latitude,longitude} = payload
+        return db.agencyApplication.create({
+            data: {
+                email: email,
+                name: name,
+                phone: phone,
+                document: document,
+                pincode:pincode,
+                latitude:latitude,
+                longitude:longitude
+              },
+        })
+        
     }
 
     public static getAlerts(payload){

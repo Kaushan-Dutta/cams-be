@@ -17,8 +17,8 @@ exports.typedefs = `#graphql
         pincode: String!
         phone: String!
         document: String!
-        latitude: String!
-        longitude: String!
+        latitude: Float!
+        longitude: Float!
     },
     input CaseFilterType  {
         id: String
@@ -40,7 +40,6 @@ exports.typedefs = `#graphql
         url: String
         file: String
         description: String!
-        caseId:String!
     }
     enum CaseType {
         CYBER
@@ -56,6 +55,7 @@ exports.typedefs = `#graphql
         PROGRESS
         REJECTED
     },
+    
     type Case {
         type: CaseType!
         name: String!

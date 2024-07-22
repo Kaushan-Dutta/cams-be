@@ -2,11 +2,17 @@ import express from 'express';
 import { expressMiddleware } from '@apollo/server/express4';
 import http from 'http';
 import { createApolloServer } from './graphql';
+import AccountService from './services/account';
 
 import * as dotenv from 'dotenv';
 
 dotenv.config(); 
 
+export type InputProps={
+    parent:any,
+    args:any,
+    context?:any
+}
 
 async function init() {
     const app = express();
@@ -18,8 +24,17 @@ async function init() {
     });
 
     await createApolloServer.start();
-    
-    app.use('/graphql', expressMiddleware(createApolloServer));
+
+    app.use('/graphql', expressMiddleware(createApolloServer,{
+        // @ts-ignore
+        context: ({ req }) => {
+            const token=(req.headers['authorization'])?.split(' ')[1];
+            // console.log(token);
+            if(token){
+                return AccountService.decodeJWT({token:token});
+            }
+        }
+    }));
 
     const httpServer = http.createServer(app);
 

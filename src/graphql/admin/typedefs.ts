@@ -1,11 +1,15 @@
 export const typedefs=`#graphql
    
     input EventInput {
-        title: String!
+        name: String!
         description: String!
         date: String!
-        time: String!
         location: String!
+    },
+    enum ApplicationStatus {
+        PENDING
+        APPROVED
+        REJECTED
     },
     type AgencyApply {
         name: String!
@@ -15,5 +19,5 @@ export const typedefs=`#graphql
         document: String!
         latitude: String!
         longitude: String!
-    },
+    }
 `

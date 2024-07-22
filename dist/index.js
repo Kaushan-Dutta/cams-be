@@ -39,6 +39,7 @@ const express_1 = __importDefault(require("express"));
 const express4_1 = require("@apollo/server/express4");
 const http_1 = __importDefault(require("http"));
 const graphql_1 = require("./graphql");
+const account_1 = __importDefault(require("./services/account"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 function init() {
@@ -49,7 +50,17 @@ function init() {
             res.status(200).json({ message: "Server up and running" });
         });
         yield graphql_1.createApolloServer.start();
-        app.use('/graphql', (0, express4_1.expressMiddleware)(graphql_1.createApolloServer));
+        app.use('/graphql', (0, express4_1.expressMiddleware)(graphql_1.createApolloServer, {
+            // @ts-ignore
+            context: ({ req }) => {
+                var _a;
+                const token = (_a = (req.headers['authorization'])) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+                // console.log(token);
+                if (token) {
+                    return account_1.default.decodeJWT({ token: token });
+                }
+            }
+        }));
         const httpServer = http_1.default.createServer(app);
         const PORT = process.env.PORT || 5000;
         httpServer.listen(PORT, () => {

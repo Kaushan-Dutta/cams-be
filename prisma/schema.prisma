@@ -46,6 +46,7 @@ enum CaseType {
   OTHER
 }
 
+
 model Account {
   id               String            @id @default(uuid())
   email            String            @unique
@@ -56,9 +57,10 @@ model Account {
   NotificationRecv Notification[]    @relation("ReceivedNotifications")
   NotificationSent Notification[]    @relation("SentNotifications")
   alert            Alert[]
-  case             CaseApplication[]
-}
+  cases            CaseApplication[] 
 
+  @@map("accounts")
+}
 model Agency {
   id          String            @id @default(uuid())
   name        String
@@ -69,6 +71,8 @@ model Agency {
   account     Account           @relation(fields: [accountId], references: [id])
   accountId   String            @unique
   application CaseApplication[]
+
+  @@map("agencies")
 }
 
 model Location {
@@ -77,6 +81,8 @@ model Location {
   latitude  Float
   account   Account @relation(fields: [accountId], references: [id])
   accountId String  @unique
+
+  @@map("locations")
 }
 
 model AgencyApplication {
@@ -84,11 +90,13 @@ model AgencyApplication {
   email     String
   name      String
   phone     String
-  pincode   String
+  pincode   String            @unique
   document  String
   longitude Float
   latitude  Float
   status    ApplicationStatus @default(PENDING)
+
+  @@map("agency_applications")
 }
 
 model Notification {
@@ -101,6 +109,8 @@ model Notification {
   senderId   String
   receiver   Account?    @relation("ReceivedNotifications", fields: [receiverId], references: [id])
   receiverId String
+
+  @@map("notifications")
 }
 
 model Evidence {
@@ -110,7 +120,10 @@ model Evidence {
   description String
   case        CaseApplication @relation(fields: [caseId], references: [id])
   caseId      String
+
+  @@map("evidences")
 }
+
 
 model CaseApplication {
   id        String            @id @default(uuid())
@@ -121,13 +134,14 @@ model CaseApplication {
   evidence  Evidence[]
   document  String?
   status    ApplicationStatus @default(PENDING)
-  account   Account           @relation(fields: [accountId], references: [id])
-  accountId String
+  account   Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String            
   createdAt DateTime          @default(now())
   agency    Agency?           @relation(fields: [agencyId], references: [id])
-  agencyId  String
-}
+  agencyId  String?
 
+  @@map("cases")
+}
 model Alert {
   id        String            @id @default(uuid())
   latitude  Float
@@ -135,6 +149,8 @@ model Alert {
   agency    Account?          @relation(fields: [agencyId], references: [id])
   agencyId  String
   status    ApplicationStatus @default(PENDING)
+
+  @@map("alerts")
 }
 
 model Event {
@@ -143,6 +159,8 @@ model Event {
   location    String
   date        DateTime
   description String
+
+  @@map("events")
 }
 
 model UserIdentityCard {
@@ -153,6 +171,6 @@ model UserIdentityCard {
   document String
   profile  String
   status   ApplicationStatus @default(PENDING)
+
+  @@map("user_identity_cards")
 }
-
-
