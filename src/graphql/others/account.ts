@@ -11,17 +11,19 @@ const typedefs = `#graphql
     type Account {
         id: ID!
         email: String!
-        password: String!
+        password: String
         role: Role!
     }
     type Response {
         message: String!
         data: String
     }
+
 `
 
 const account_query = `#graphql
-        accountLogin(email: String!, password: String!): Response
+        accountLogin(email: String!, password: String!): Response,
+        getAccount: Account
 `
 
 
@@ -37,6 +39,15 @@ const queries = {
         }
         catch (err) {
             return {message:err.message}
+        }
+    },
+    getAccount: async (parent,args,context) => {
+    
+        try {
+            return context
+        }
+        catch (err) {
+            throw new Error(err.message)
         }
     }
 }

@@ -58,7 +58,7 @@ model Account {
   NotificationSent Notification[]    @relation("SentNotifications")
   alert            Alert[]
   cases            CaseApplication[] 
-
+  caseAgencyMap    CaseAgencyMap[]
   @@map("accounts")
 }
 model Agency {
@@ -70,8 +70,7 @@ model Agency {
   updatedAt   DateTime          @updatedAt
   account     Account           @relation(fields: [accountId], references: [id])
   accountId   String            @unique
-  application CaseApplication[]
-
+ 
   @@map("agencies")
 }
 
@@ -137,10 +136,19 @@ model CaseApplication {
   account   Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId String            
   createdAt DateTime          @default(now())
-  agency    Agency?           @relation(fields: [agencyId], references: [id])
-  agencyId  String?
-
+ 
+  caseAgencyMap CaseAgencyMap[]
   @@map("cases")
+}
+model CaseAgencyMap {
+  id       String          @id @default(uuid())
+  case      CaseApplication @relation(fields: [caseId], references: [id])
+  caseId    String
+  agency    Account          @relation(fields: [agencyId], references: [id])
+  agencyId  String
+
+  @@map("case_agency_maps")
+
 }
 model Alert {
   id        String            @id @default(uuid())

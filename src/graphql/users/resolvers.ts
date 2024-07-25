@@ -1,5 +1,6 @@
 
 //@ts-nocheck
+import AgencyService from "../../services/agency";
 import UserService from "../../services/user";
 
 const mutations={
@@ -7,20 +8,28 @@ const mutations={
         console.log("Args:Outside",args,context);
         if(context.role==="USER"){
             try{
-                const caseRegister=await UserService.caseRegister({account:context.id,...args.data});
-                console.log("Case Register",caseRegister);
-
-                if(caseRegister){
-                    // console.log("Args evidence",args.data.evidence);
-                    if(args.data.evidence){
-                        // console.log(args.evidence);
-                        const updateCaseEvidence=await UserService.updateCaseEvidence({account:caseRegister.id,evidence:args.data.evidence});
-                        if(updateCaseEvidence){
-                            return {message:"Case Registered and Evidence Updated"}
+                const getAgencyFromPincode=await AgencyService.getAgencyFromPincode({pincode:args.data.pincode});
+                console.log("Agency",getAgencyFromPincode);
+                if(getAgencyFromPincode){
+                    const caseRegister=await UserService.caseRegister({account:context.id,...args.data});
+                    console.log("Case Register",caseRegister);
+                
+                    if(caseRegister){
+                        // console.log("Args evidence",args.data.evidence);
+                        const mapCaseAgency=await UserService.mapCaseAgency({caseId:caseRegister.id,agencyId:getAgencyFromPincode.accountId});
+                        if(mapCaseAgency){
+                            console.log("Case Registered and Agency Mapped");
                         }
-                    
+                        if(args.data.evidence){
+                            // console.log(args.evidence);
+                            const updateCaseEvidence=await UserService.updateCaseEvidence({account:caseRegister.id,evidence:args.data.evidence});
+                            if(updateCaseEvidence){
+                                return {message:"Case Registered and Evidence Updated"}
+                            }
+                        
+                        }
+                        return {message:"Case Registered"  }
                     }
-                    return {message:"Case Registered"  }
                 }
             }
             catch(err){

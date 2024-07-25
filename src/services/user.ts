@@ -14,7 +14,7 @@ class UserService {
     }
     public static async caseRegister(payload) {
         console.log("Args:Inside", payload);
-        const { type,name,phone,pincode,document,account } = payload
+        const { type, name, phone, pincode, document, account } = payload
         return db.caseApplication.create({
             data: {
                 type: type,
@@ -22,12 +22,25 @@ class UserService {
                 phone: phone,
                 pincode: pincode,
                 document: document,
-                accountId:account,
-                
+                accountId: account,
+
             }
         })
     }
-    
+    public static async mapCaseAgency(payload) {
+        console.log("Args:Inside", payload);
+        const { caseId, agencyId } = payload
+        
+        return db.caseAgencyMap.create({
+            data: {
+                agencyId: agencyId,
+                caseId: caseId,
+            }
+        })
+        
+
+        
+    }
     public static async updateCaseEvidence(payload) {
         console.log("Args:Inside", payload);
         const { account, evidence } = payload

@@ -3,8 +3,8 @@ import { expressMiddleware } from '@apollo/server/express4';
 import http from 'http';
 import { createApolloServer } from './graphql';
 import AccountService from './services/account';
-
 import * as dotenv from 'dotenv';
+import cors from "cors";
 
 dotenv.config(); 
 
@@ -18,7 +18,15 @@ async function init() {
     const app = express();
     
     app.use(express.json());
-    
+    app.use(cors(
+        {
+            origin: true,
+            // methods: 'GET,PUT,PATCH,POST,DELETE',
+            // preflightContinue: false,
+            // optionsSuccessStatus: 204,
+            // allowedHeaders: ['Content-Type', 'Authorization'],
+        }
+    ));
     app.get('/', (req, res) => {
         res.status(200).json({ message: "Server up and running" });
     });

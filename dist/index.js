@@ -41,11 +41,19 @@ const http_1 = __importDefault(require("http"));
 const graphql_1 = require("./graphql");
 const account_1 = __importDefault(require("./services/account"));
 const dotenv = __importStar(require("dotenv"));
+const cors_1 = __importDefault(require("cors"));
 dotenv.config();
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         app.use(express_1.default.json());
+        app.use((0, cors_1.default)({
+            origin: true,
+            // methods: 'GET,PUT,PATCH,POST,DELETE',
+            // preflightContinue: false,
+            // optionsSuccessStatus: 204,
+            // allowedHeaders: ['Content-Type', 'Authorization'],
+        }));
         app.get('/', (req, res) => {
             res.status(200).json({ message: "Server up and running" });
         });

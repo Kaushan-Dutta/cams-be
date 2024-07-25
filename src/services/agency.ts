@@ -17,7 +17,12 @@ class AgencyService{
         })
         
     }
-
+    public static getAgencyFromPincode(payload){
+        const {pincode}=payload
+        return  db.agency.findFirst({
+            where: { pincode: pincode },
+        });
+    }
     public static getAlerts(payload){
         const {id}=payload
         return {message:"Alerts fetched"}

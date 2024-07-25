@@ -38,6 +38,18 @@ class UserService {
             });
         });
     }
+    static mapCaseAgency(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("Args:Inside", payload);
+            const { caseId, agencyId } = payload;
+            return db_config_1.db.caseAgencyMap.create({
+                data: {
+                    agencyId: agencyId,
+                    caseId: caseId,
+                }
+            });
+        });
+    }
     static updateCaseEvidence(payload) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Args:Inside", payload);
