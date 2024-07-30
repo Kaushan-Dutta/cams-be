@@ -2,5 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.queries = void 0;
 exports.queries = `#graphql
-    getAgencyForms:[AgencyApply]
+    getAgencyForms:[AgencyApplications],
+    getEvents:[Event],
 `;

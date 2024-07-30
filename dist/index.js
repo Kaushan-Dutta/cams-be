@@ -63,7 +63,6 @@ function init() {
             context: ({ req }) => {
                 var _a;
                 const token = (_a = (req.headers['authorization'])) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-                // console.log(token);
                 if (token) {
                     return account_1.default.decodeJWT({ token: token });
                 }

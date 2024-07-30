@@ -17,8 +17,23 @@ exports.resolvers = void 0;
 const admin_1 = __importDefault(require("../../services/admin"));
 const queries = {
     getAgencyForms: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(args);
-        return { message: "Agency Forms fetched" };
+        try {
+            const forms = yield admin_1.default.getAgencyForms();
+            return forms;
+        }
+        catch (err) {
+            return { message: err.message };
+        }
+    }),
+    getEvents: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Agrs:Outside ", args);
+        try {
+            const events = yield admin_1.default.getEvents();
+            return events;
+        }
+        catch (err) {
+            return { message: err.message };
+        }
     })
 };
 const mutations = {

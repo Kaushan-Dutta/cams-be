@@ -25,12 +25,12 @@ class AccountService{
     }
     public static decodeJWT(payload){
         const {token} = payload
-        console.log(token);
+        // console.log(token);
         return jwt.verify(token,JWT_SECRET)
     }
     private static generateJWT(payload){
         const {id,email,role} = payload
-        return jwt.sign({id,email,role},JWT_SECRET,{expiresIn:'1d'})
+        return jwt.sign({id,email,role},JWT_SECRET,{expiresIn:'5d'})
     }
 
 }

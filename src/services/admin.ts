@@ -2,7 +2,7 @@
 import { db } from "../lib/db.config";
 class AdminService{
     public static createEvent(payload){
-        const {description,date,name,location} = payload.data
+        const {description,date,name,location} = payload
         console.log("Args:Inside",description,date,name,location);
         const formattedDate = new Date(date).toISOString();
 
@@ -74,6 +74,14 @@ class AdminService{
                 accountId:account
             },
         })
+    }
+    public static async getAgencyForms(payload){
+        console.log("Args:Inside ",payload);
+        return db.agencyApplication.findMany()
+    }
+    public static async getEvents(payload){
+        console.log("Args:Inside",payload);
+        return db.event.findMany()
     }
 }
 export default AdminService

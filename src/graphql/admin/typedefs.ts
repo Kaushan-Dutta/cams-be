@@ -11,13 +11,17 @@ export const typedefs=`#graphql
         APPROVED
         REJECTED
     },
-    type AgencyApply {
+    type AgencyApplications {
         name: String!
-        email: String!
         pincode: String!
-        phone: String!
         document: String!
-        latitude: String!
-        longitude: String!
-    }
+        status: ApplicationStatus!
+    },
+    type Event {
+        id:String!
+        name: String!
+        description: String!
+        date: String!
+        location: String!
+    },
 `

@@ -4,8 +4,23 @@ import AdminService from "../../services/admin";
 
 const queries={
     getAgencyForms:async(parent,args,context)=>{
-        console.log(args);
-        return {message:"Agency Forms fetched"}
+        try{
+            const forms=await AdminService.getAgencyForms();
+            return forms
+        }
+        catch(err){
+            return {message:err.message}
+        }
+    },
+    getEvents:async(parent,args,context)=>{
+        console.log("Agrs:Outside ",args);
+        try{
+            const events=await AdminService.getEvents();
+            return events
+        }
+        catch(err){
+            return {message:err.message}
+        }
     }
 }
 const mutations={
