@@ -38,7 +38,7 @@ const queries = {
 };
 const mutations = {
     updateAgencyFormStatus: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args);
+        console.log("Args:Outside in update form", args);
         try {
             const update = yield admin_1.default.updateAgencyFormStatus(args);
             if (update) {
@@ -48,7 +48,6 @@ const mutations = {
         catch (err) {
             return { message: err.message };
         }
-        return { message: "Agency Form Status Updated" };
     }),
     createEvent: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Args:Outside", args);

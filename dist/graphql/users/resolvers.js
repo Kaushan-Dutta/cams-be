@@ -16,6 +16,31 @@ exports.resolvers = void 0;
 //@ts-nocheck
 const agency_1 = __importDefault(require("../../services/agency"));
 const user_1 = __importDefault(require("../../services/user"));
+const queries = {
+    getUserCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside", args);
+        try {
+            if (context.role === "USER") {
+                let filter = {};
+                if (args.accountId)
+                    filter.accountId = context.id;
+                if (args.status)
+                    filter.status = args.status;
+                if (args.type)
+                    filter.type = args.type;
+                if (args.createdAt)
+                    filter.createdAt = args.createdAt;
+                return yield user_1.default.getCases(filter);
+            }
+            else {
+                throw new Error("Unauthorized");
+            }
+        }
+        catch (err) {
+            return { message: err.message };
+        }
+    }),
+};
 const mutations = {
     caseRegister: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Args:Outside", args, context);
@@ -42,6 +67,7 @@ const mutations = {
                         return { message: "Case Registered" };
                     }
                 }
+                return { message: "Agency not found" };
             }
             catch (err) {
                 return { message: err.message };
@@ -64,4 +90,4 @@ const mutations = {
         }
     })
 };
-exports.resolvers = { mutations };
+exports.resolvers = { mutations, queries };

@@ -62,5 +62,11 @@ class UserService {
             return true;
         });
     }
+    static getCases(payload) {
+        console.log("Args:Inside", payload);
+        return db_config_1.db.caseApplication.findMany({
+            where: Object.assign({}, payload)
+        });
+    }
 }
 exports.default = UserService;

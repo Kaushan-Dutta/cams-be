@@ -55,5 +55,14 @@ class UserService {
         return true
     }
 
+    public static getCases(payload) {
+        console.log("Args:Inside", payload);
+        return db.caseApplication.findMany({
+            where: {
+                ...payload
+            }
+        })
+    }
+
 }
 export default UserService

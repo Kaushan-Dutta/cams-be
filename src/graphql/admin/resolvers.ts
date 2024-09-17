@@ -25,7 +25,7 @@ const queries={
 }
 const mutations={
     updateAgencyFormStatus:async(parent,args,context)=>{
-        console.log("Args:Outside",args);
+        console.log("Args:Outside in update form",args);
         try{
             const update=await AdminService.updateAgencyFormStatus(args);
             if(update){
@@ -35,7 +35,6 @@ const mutations={
         catch(err){
             return {message:err.message}
         }
-        return {message:"Agency Form Status Updated"}
     },
     createEvent:async(parent,args,context)=>{
         console.log("Args:Outside",args);

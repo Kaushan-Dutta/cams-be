@@ -23,14 +23,14 @@ class AgencyService{
             where: { pincode: pincode },
         });
     }
-    public static getAlerts(payload){
-        const {id}=payload
-        return {message:"Alerts fetched"}
-    }
+    
     public static updateAlert(payload){
-        const {id}=payload
-        console.log(id);
-        return {message:"Alert Updated"}
+        const {id,status}=payload
+        console.log("Args:Inside",id,status);
+        return db.alert.update({
+            where: { id: id },
+            data: { status: status },
+        })
     }
 
     public static updateCaseStatus(payload){
@@ -42,7 +42,6 @@ class AgencyService{
         
         return {message:"Cases fetched"}
     }
-
     public static updateCaseEvidence(payload){
         return {message:"Case Evidence Updated"}
     }

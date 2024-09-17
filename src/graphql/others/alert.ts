@@ -8,7 +8,8 @@ const typedefs=`#graphql
         latitude: Float!
         longitude: Float!
         status:ApplicationStatus!
-        agencyId:String
+        agencyId:String,
+        createdAt:String
     },
     
 `
@@ -21,9 +22,11 @@ const alert_mutation = `#graphql
 const queries={
         
         getAlerts: async (parent,args,context) => {
-            console.log("Args:Outside",args);
+            console.log("Args:Outside for alerts",args);
             try {
-                return await AlertService.getAlerts({agencyId:context.id});
+                const alerts=await AlertService.getAlerts({agencyId:context.id});
+                console.log("Alerts",alerts);
+                return alerts;
             }
             catch (err) {
                 return {message:err.message}

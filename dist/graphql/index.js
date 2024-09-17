@@ -23,6 +23,7 @@ const createApolloServer = new server_1.ApolloServer({
             ${admin_1.Admin.queries}
             ${notifications_1.Notification.queries}
             ${alert_1.Alert.queries}
+            ${users_1.User.queries}
         }
         type Mutation {
             ${agency_1.Agency.mutations}
@@ -32,7 +33,7 @@ const createApolloServer = new server_1.ApolloServer({
         }
     `,
     resolvers: {
-        Query: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, account_1.Account.resolvers.queries), agency_1.Agency.resolvers.queries), admin_1.Admin.resolvers.queries), notifications_1.Notification.resolvers.queries), alert_1.Alert.resolvers.queries),
+        Query: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, account_1.Account.resolvers.queries), agency_1.Agency.resolvers.queries), admin_1.Admin.resolvers.queries), users_1.User.resolvers.queries), notifications_1.Notification.resolvers.queries), alert_1.Alert.resolvers.queries),
         Mutation: Object.assign(Object.assign(Object.assign(Object.assign({}, agency_1.Agency.resolvers.mutations), admin_1.Admin.resolvers.mutations), users_1.User.resolvers.mutations), alert_1.Alert.resolvers.mutations)
     }
 });

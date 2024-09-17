@@ -12,10 +12,14 @@ export const typedefs=`#graphql
         REJECTED
     },
     type AgencyApplications {
+        id: String!
         name: String!
         pincode: String!
         document: String!
         status: ApplicationStatus!
+        phone: String!
+        latitude: String!
+        longitude: String!
     },
     type Event {
         id:String!

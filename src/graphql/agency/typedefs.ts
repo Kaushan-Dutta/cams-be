@@ -18,7 +18,6 @@ export const typedefs = `#graphql
         longitude: Float!
     },
     input CaseFilterType  {
-        id: String
         accountId: String
         status: CaseStatus
         agencyId: String
@@ -54,6 +53,7 @@ export const typedefs = `#graphql
     },
     
     type Case {
+        id:String!
         type: CaseType!
         name: String!
         phone: String!
@@ -66,12 +66,6 @@ export const typedefs = `#graphql
         createdAt: String
         agency: Agency
         agencyId: String
-    },
-    type Alert {
-        id: String!,
-        latitude: Float!,
-        longitude: Float!,
-        createdAt: String!
     }
 
 `

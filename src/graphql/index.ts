@@ -21,6 +21,7 @@ const createApolloServer = new ApolloServer({
             ${Admin.queries}
             ${Notification.queries}
             ${Alert.queries}
+            ${User.queries}
         }
         type Mutation {
             ${Agency.mutations}
@@ -34,6 +35,7 @@ const createApolloServer = new ApolloServer({
             ...Account.resolvers.queries,
             ...Agency.resolvers.queries,
             ...Admin.resolvers.queries,
+            ...User.resolvers.queries,
             ...Notification.resolvers.queries,
             ...Alert.resolvers.queries
         },

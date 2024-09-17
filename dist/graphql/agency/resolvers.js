@@ -15,11 +15,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 //@ts-nocheck
 const agency_1 = __importDefault(require("../../services/agency"));
+// id: String
+//         accountId: String
+//         status: CaseStatus
+//         agencyId: String
+//         userId: String
+//         createdAt: String
+//         type: CaseType
 const queries = {
-    getCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(args);
-        return { message: "Cases fetched" };
-    }),
+    // getCases:async(parent,args,context)=>{
+    //     console.log(args);
+    //     // try{
+    //     //     let filter={};
+    //     //     if(args.accountId) filter.accountId=args.accountId;
+    //     //     if(args.status) filter.status=args.status;
+    //     //     if(args.type) filter.type=args.type;
+    //     //     if(args.createdAt) filter.createdAt=args.createdAt
+    //     //     const cases=await AgencyService.getCases(args);
+    //     // }
+    //     // catch(err){
+    //     //     return {message:err.message}
+    //     // }
+    // },
     alerts: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         return { message: "Alerts fetched" };
     })
@@ -38,8 +55,17 @@ const mutations = {
         }
     }),
     updateAlert: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(args);
-        return { message: "Alert Updated" };
+        console.log("Args:outside", args);
+        try {
+            const update = yield agency_1.default.updateAlert(args);
+            if (update) {
+                return { message: "Alert Updated" };
+            }
+            return { message: "Alert not updated" };
+        }
+        catch (err) {
+            return { message: err.message };
+        }
     })
 };
 exports.resolvers = { queries, mutations };
