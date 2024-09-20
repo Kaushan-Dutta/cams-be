@@ -1,6 +1,7 @@
 //@ts-nocheck
 
 import AdminService from "../../services/admin";
+import NotificationService from "../../services/notification";
 
 const queries={
     getAgencyForms:async(parent,args,context)=>{
@@ -41,7 +42,10 @@ const mutations={
         try{
             const event = await AdminService.createEvent(args.data);
             if(event){
-                return {message:"Event Created"}
+                const notification=await NotificationService.createNotification({messageType:"EVENT",data:args.data,type:"BROADCAST"});
+                if(notification){
+                    return {message:"Event Created and notification sent"}
+                }
             }
         }
         catch(err){

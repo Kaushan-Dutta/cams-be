@@ -1,4 +1,4 @@
 export const queries = `#graphql
-    # getCases(data:CaseFilterType):Response,
+    getAgencyCases:[Case],
     alerts(id:String): Alert,
 `

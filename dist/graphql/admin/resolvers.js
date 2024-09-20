@@ -15,6 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const admin_1 = __importDefault(require("../../services/admin"));
+const notification_1 = __importDefault(require("../../services/notification"));
 const queries = {
     getAgencyForms: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -54,7 +55,10 @@ const mutations = {
         try {
             const event = yield admin_1.default.createEvent(args.data);
             if (event) {
-                return { message: "Event Created" };
+                const notification = yield notification_1.default.createNotification({ messageType: "EVENT", data: args.data, type: "BROADCAST" });
+                if (notification) {
+                    return { message: "Event Created and notification sent" };
+                }
             }
         }
         catch (err) {

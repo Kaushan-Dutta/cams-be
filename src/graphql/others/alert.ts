@@ -25,7 +25,7 @@ const queries={
             console.log("Args:Outside for alerts",args);
             try {
                 const alerts=await AlertService.getAlerts({agencyId:context.id});
-                console.log("Alerts",alerts);
+                // console.log("Alerts",alerts);
                 return alerts;
             }
             catch (err) {

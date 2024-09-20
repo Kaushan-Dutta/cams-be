@@ -1,49 +1,78 @@
 //@ts-nocheck
 import { db } from "../lib/db.config";
 
-class AgencyService{
-    public static agencyRegister(payload){
-        const {email, name,phone,document,pincode,latitude,longitude} = payload
+class AgencyService {
+    public static agencyRegister(payload) {
+        const { email, name, phone, document, pincode, latitude, longitude, sate } = payload
+        console.log("Args:Inside", payload);
         return db.agencyApplication.create({
             data: {
-                email: email,
-                name: name,
-                phone: phone,
-                document: document,
-                pincode:pincode,
-                latitude:latitude,
-                longitude:longitude
-              },
+                ...payload
+            },
         })
-        
+
     }
-    public static getAgencyFromPincode(payload){
-        const {pincode}=payload
-        return  db.agency.findFirst({
+    public static getAgencyFromPincode(payload) {
+        const { pincode } = payload
+        return db.location.findFirst({
             where: { pincode: pincode },
         });
     }
-    
-    public static updateAlert(payload){
-        const {id,status}=payload
-        console.log("Args:Inside",id,status);
+
+    public static updateAlert(payload) {
+        const { id, status } = payload
+        console.log("Args:Inside", id, status);
         return db.alert.update({
             where: { id: id },
             data: { status: status },
         })
     }
 
-    public static updateCaseStatus(payload){
-        const {id,status}=payload
-        console.log(id,status);
-        return {message:"Case Status Updated"}
+    public static updateCaseStatus(payload) {
+        console.log("Args:Inside", payload);
+        const { id, status } = payload
+        console.log(id, status);
+        return db.caseApplication.update({
+            where: { id: id },
+            data: { status: status },
+        })
     }
-    public static getCases(payload){
-        
-        return {message:"Cases fetched"}
+    public static getAgencyCases(payload) {
+        console.log("Args:Inside", payload);
+        const { agencyId } = payload
+        return db.caseAgencyMap.findMany({
+            where: {
+                agencyId: agencyId,
+            },
+            select: {
+                case: true
+            }
+        })
+
     }
-    public static updateCaseEvidence(payload){
-        return {message:"Case Evidence Updated"}
+    public static getAgencyCaseMap(payload) {
+        console.log("Args:Inside", payload);
+        const { agencyId, caseId } = payload
+        return db.caseAgencyMap.findFirst({
+            where: {
+                AND: [
+                    { agencyId: agencyId },
+                    { caseId: caseId }
+                ]
+            },
+            include: {
+                agency: {
+                    select: {
+                        name: true
+                    }
+                },
+            }
+
+        })
+
+    }
+    public static updateCaseEvidence(payload) {
+        return { message: "Case Evidence Updated" }
     }
 }
 export default AgencyService

@@ -1,24 +1,23 @@
 //@ts-nocheck
+import NotificationService from "../../services/notification";
+
 const typedefs = `#graphql
     type Notification {
         id:ID!
-        title:String!
-        description:String!
-        status:Int!
-        sender:Account!
-        receiver:Account
+        message:String!
         createdAt:String!
     }
 `
 const notification_query = `#graphql
-    getNotifications(id:String): [Notification]
+    getNotifications: [Notification]
 `
 const queries = {
     getNotifications: async (parent, args, context) => {
         console.log("Args:Outside", args);
         try {
-            // const notificationService=await NotificationService.getNotifications(args);
-            // return notificationService;
+            const notification=await  NotificationService.getNotifications({id:context.id});  
+            console.log("Notification",notification);
+            return notification;          
         }
         catch (err) {
             return err

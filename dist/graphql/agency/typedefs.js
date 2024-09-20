@@ -10,6 +10,8 @@ exports.typedefs = `#graphql
         document: String!
         latitude: String!
         longitude: String!
+        state: String!
+        city: String!
     },
     input AgencyApplyForm {
         name: String!
@@ -19,6 +21,8 @@ exports.typedefs = `#graphql
         document: String!
         latitude: Float!
         longitude: Float!
+        state: String!
+        city: String!
     },
     input CaseFilterType  {
         accountId: String
@@ -50,8 +54,7 @@ exports.typedefs = `#graphql
     },
     enum CaseStatus {
         PENDING
-        CASE_ASSIGNED
-        PROGRESS
+        APPROVED
         REJECTED
     },
     

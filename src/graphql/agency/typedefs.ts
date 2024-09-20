@@ -7,6 +7,8 @@ export const typedefs = `#graphql
         document: String!
         latitude: String!
         longitude: String!
+        state: String!
+        city: String!
     },
     input AgencyApplyForm {
         name: String!
@@ -16,6 +18,8 @@ export const typedefs = `#graphql
         document: String!
         latitude: Float!
         longitude: Float!
+        state: String!
+        city: String!
     },
     input CaseFilterType  {
         accountId: String
@@ -47,8 +51,7 @@ export const typedefs = `#graphql
     },
     enum CaseStatus {
         PENDING
-        CASE_ASSIGNED
-        PROGRESS
+        APPROVED
         REJECTED
     },
     

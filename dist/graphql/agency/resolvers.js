@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 //@ts-nocheck
 const agency_1 = __importDefault(require("../../services/agency"));
+const notification_1 = __importDefault(require("../../services/notification"));
 // id: String
 //         accountId: String
 //         status: CaseStatus
@@ -23,20 +24,21 @@ const agency_1 = __importDefault(require("../../services/agency"));
 //         createdAt: String
 //         type: CaseType
 const queries = {
-    // getCases:async(parent,args,context)=>{
-    //     console.log(args);
-    //     // try{
-    //     //     let filter={};
-    //     //     if(args.accountId) filter.accountId=args.accountId;
-    //     //     if(args.status) filter.status=args.status;
-    //     //     if(args.type) filter.type=args.type;
-    //     //     if(args.createdAt) filter.createdAt=args.createdAt
-    //     //     const cases=await AgencyService.getCases(args);
-    //     // }
-    //     // catch(err){
-    //     //     return {message:err.message}
-    //     // }
-    // },
+    getAgencyCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside ");
+        try {
+            // console.log("Context",context.role);   
+            const cases = yield agency_1.default.getAgencyCases({ agencyId: context.id });
+            const casesData = cases.map((item) => {
+                return item.case;
+            });
+            // console.log("Cases",cases);
+            return casesData;
+        }
+        catch (err) {
+            return { message: err.message };
+        }
+    }),
     alerts: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         return { message: "Alerts fetched" };
     })
@@ -65,6 +67,31 @@ const mutations = {
         }
         catch (err) {
             return { message: err.message };
+        }
+    }),
+    updateCaseStatus: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:outside", args);
+        try {
+            const check_case_agency = yield agency_1.default.getAgencyCaseMap({ agencyId: context.id, caseId: args.id });
+            console.log("Check Case Agency", check_case_agency);
+            if (!check_case_agency) {
+                return { message: "Case not assigned to Agency" };
+            }
+            const update = yield agency_1.default.updateCaseStatus(args);
+            if (update) {
+                const notification = yield notification_1.default.createNotification({
+                    messageType: args.status == "APPROVED" ? 'CASE_ACCEPT' : 'CASE_REJECT', data: {
+                        name: update.name,
+                        agency_name: check_case_agency.agency.name
+                    }, type: "PERSONAL", receiverId: update.accountId
+                });
+                return { message: "Case Status Updated" };
+            }
+            return { message: "Case Status not updated" };
+        }
+        catch (err) {
+            console.log("Error", err.message);
+            throw new Error(err.message);
         }
     })
 };

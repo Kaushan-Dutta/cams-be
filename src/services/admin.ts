@@ -31,13 +31,12 @@ class AdminService{
             const createAcc=await this.createAgencyAcccount(update)
             console.log(createAcc);
             if(createAcc){
-                const createAgency=await this.createAgency({account:createAcc.id,...update})
-                if(createAgency){
+                
                     const setAgencyLoc=await this.setAgencyLoc({account:createAcc.id,...update})
                     if(setAgencyLoc){
                         return true
                     }
-                }
+                
             }
             
         }
@@ -51,26 +50,20 @@ class AdminService{
                 email: payload.email,
                 password: "agency",
                 role: "AGENCY",
+                name: payload.name,
+                phone: payload.phone,
         }})
     }
-    private static async createAgency(payload){
-        console.log(payload)
-        const {name,pincode,phone,email,account} = payload
-        return db.agency.create({
-            data: {
-                name:name,
-                pincode:pincode,
-                phone:phone,
-                accountId:account,
-            },
-        })
-    }
+    
     private static async setAgencyLoc(payload){
-        const {latitude,longitude,account} = payload
+        const {latitude,longitude,account,pincode,state,city} = payload
         return db.location.create({
             data: {
                 latitude:latitude,
                 longitude:longitude,
+                pincode:pincode,
+                state:state,
+                city:city,
                 accountId:account
             },
         })
