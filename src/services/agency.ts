@@ -50,6 +50,29 @@ class AgencyService {
         })
 
     }
+    public static async getAllCases() {
+        console.log("Args:Inside");
+        const cases=await db.caseAgencyMap.findMany({
+            
+            select: {
+                case:{
+                    select:{
+                        id:true,
+                        type:true,
+                        createdAt:true,
+                        name:true,
+                        pincode:true
+                    }
+                },
+                agency:true
+            }
+        })
+        console.log("Cases",cases);
+        return cases
+
+    }
+  
+
     public static getAgencyCaseMap(payload) {
         console.log("Args:Inside", payload);
         const { agencyId, caseId } = payload

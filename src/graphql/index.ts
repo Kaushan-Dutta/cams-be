@@ -6,6 +6,8 @@ import { Agency } from './agency';
 import { Admin } from './admin';
 import { User } from './users';
 import { Alert } from './others/alert';
+import { Case } from './others/case';
+import { Event } from './others/event';
 
 const createApolloServer = new ApolloServer({
     typeDefs:  `
@@ -22,12 +24,16 @@ const createApolloServer = new ApolloServer({
             ${Notification.queries}
             ${Alert.queries}
             ${User.queries}
+            ${Case.queries}
+            ${Event.queries}
         }
         type Mutation {
             ${Agency.mutations}
             ${Admin.mutations}
             ${User.mutations}
             ${Alert.mutations}
+            ${Case.mutations}
+            ${Account.mutations}
         }
     `,
     resolvers: {
@@ -37,13 +43,17 @@ const createApolloServer = new ApolloServer({
             ...Admin.resolvers.queries,
             ...User.resolvers.queries,
             ...Notification.resolvers.queries,
-            ...Alert.resolvers.queries
+            ...Alert.resolvers.queries,
+            ...Case.resolvers.queries,
+            ...Event.resolvers.queries
         },
         Mutation: {
             ...Agency.resolvers.mutations,
             ...Admin.resolvers.mutations,
             ...User.resolvers.mutations,
-            ...Alert.resolvers.mutations
+            ...Alert.resolvers.mutations,
+            ...Case.resolvers.mutations,
+            ...Account.resolvers.mutations
         }
     }
 });

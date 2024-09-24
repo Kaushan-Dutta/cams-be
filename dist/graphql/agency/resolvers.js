@@ -39,6 +39,21 @@ const queries = {
             return { message: err.message };
         }
     }),
+    getAllCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside for get all cases");
+        try {
+            const cases = yield agency_1.default.getAllCases();
+            console.log("Cases", cases);
+            const casesFile = cases.map((item) => {
+                return Object.assign(Object.assign({}, item.case), { agency: item.agency });
+            });
+            console.log("Cases", casesFile);
+            return casesFile;
+        }
+        catch (err) {
+            return { message: err.message };
+        }
+    }),
     alerts: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         return { message: "Alerts fetched" };
     })

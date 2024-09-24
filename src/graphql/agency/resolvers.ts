@@ -24,6 +24,24 @@ const queries = {
             return { message: err.message }
         }
     },
+    getAllCases: async (parent, args, context) => {
+        console.log("Args:Outside for get all cases");
+        try {
+            const cases=await AgencyService.getAllCases();  
+            console.log("Cases",cases);
+            const casesFile=cases.map((item)=>{
+                return {
+                    ...item.case,
+                    agency:item.agency
+                }
+            }) 
+            console.log("Cases",casesFile);
+            return casesFile; 
+        }
+        catch (err) {
+            return { message: err.message }
+        }
+    },
     alerts: async (parent, args, context) => {
         return { message: "Alerts fetched" }
     }

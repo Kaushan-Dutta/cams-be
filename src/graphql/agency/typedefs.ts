@@ -1,14 +1,15 @@
 export const typedefs = `#graphql
     type Agency {
-        name: String!
-        email: String!
-        pincode: String!
-        phone: String!
-        document: String!
-        latitude: String!
-        longitude: String!
-        state: String!
-        city: String!
+        id: String
+        name: String
+        email: String
+        pincode: String
+        phone: String
+        document: String
+        latitude: String
+        longitude: String
+        state: String
+        city: String
     },
     input AgencyApplyForm {
         name: String!
@@ -30,16 +31,18 @@ export const typedefs = `#graphql
         type: CaseType
     },
     type Evidence {
-        id: String!
+        id: String
         url: String
         file: String
-        description: String!
-        caseId:String!
+        description: String
+        caseId:String
     },
     input EvidenceInput {
+        id: String
         url: String
         file: String
         description: String!
+        caseId:String
     }
     enum CaseType {
         CYBER
@@ -61,14 +64,12 @@ export const typedefs = `#graphql
         name: String!
         phone: String!
         pincode: String!
-        evidence: Evidence
+        evidence: [Evidence]
         document: String
         status: CaseStatus
         account: Account
-        accountId: String
         createdAt: String
         agency: Agency
-        agencyId: String
     }
 
 `

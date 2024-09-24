@@ -97,7 +97,7 @@ model Notification {
   createdAt DateTime    @default(now())
   type      MessageType
 
-  sender     Account?  @relation("SentNotifications", fields: [senderId], references: [id])
+  sender     Account? @relation("SentNotifications", fields: [senderId], references: [id])
   senderId   String?
   receiver   Account? @relation("ReceivedNotifications", fields: [receiverId], references: [id])
   receiverId String?
@@ -137,7 +137,7 @@ model CaseApplication {
 model CaseAgencyMap {
   id       String          @id @default(uuid())
   case     CaseApplication @relation(fields: [caseId], references: [id])
-  caseId   String
+  caseId   String          @unique
   agency   Account         @relation(fields: [agencyId], references: [id])
   agencyId String
 
