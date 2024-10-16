@@ -6,8 +6,7 @@ import AccountService from './services/account';
 import * as dotenv from 'dotenv';
 import cors from "cors";
 import redisclient from './lib/redis.config';
-// import cookieParser from 'cookie-parser';
-import cookie from 'cookie';
+
 
 dotenv.config();
 
