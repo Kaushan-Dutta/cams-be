@@ -1,6 +1,5 @@
 import { ApolloServer } from '@apollo/server';
 import { Account } from './others/account';
-// import { Event } from './others/events';
 import { Notification } from './others/notifications';
 import { Agency } from './agency';
 import { Admin } from './admin';
@@ -9,14 +8,11 @@ import { Alert } from './others/alert';
 import { Case } from './others/case';
 import { Event } from './others/event';
 
+import {typedefs} from './typedefs'
+
 const createApolloServer = new ApolloServer({
     typeDefs:  `
-        ${Account.typedefs}
-        ${Agency.typedefs}
-        ${Admin.typedefs}
-        ${User.typedefs}
-        ${Alert.typedefs}
-        ${Notification.typedefs}
+        ${typedefs}
         type Query {
             ${Account.queries}
             ${Agency.queries}

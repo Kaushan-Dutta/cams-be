@@ -1,80 +1,94 @@
-
-//@ts-nocheck
 import AgencyService from "../../services/agency";
 import UserService from "../../services/user";
+import redisclient from '../../lib/redis.config'
+import ApiError from "../../utils/ApiError";
+import ApiResponse from "../../utils/ApiResponse";
+import { ResolverProps } from "../../types";
+import Transaction from "../../managers/TransactionManager";
+
 const queries = {
-    getUserCases: async (parent, args, context) => {
-        console.log("Args:Outside",args);
+    getUserCases: async (parent: any, args: any, context: any) => {
+        console.log("Args: Outside of GetUserCases", args);
         try {
-            if (context.role === "USER") {
-                let filter = {};
+            if (context.user.role != "USER") {
+                throw new ApiError(401, "Unauthorized", {}, false);
 
-                if (args.accountId) filter.accountId = context.id;
-                if (args.status) filter.status = args.status;
-                if (args.type) filter.type = args.type;
-                if (args.createdAt) filter.createdAt = args.createdAt
+            }
+            const caseKey = `cases:${context.user.id}`;
+            console.log("Case Key:", caseKey);
 
-                return await UserService.getCases(filter);
+            let cachedCases = await redisclient.get(caseKey);
+
+            if (cachedCases) {
+                console.log("Returning cached cases");
+                return new ApiResponse(200, "User Cases from cached", JSON.parse(cachedCases));
             }
-            else {
-                throw new Error("Unauthorized")
-            }
-        }
-        catch (err) {
-            return { message: err.message }
+
+            const getCases = await UserService.getCases({ accounId: context.user.id });
+
+            await redisclient.set(caseKey, JSON.stringify(getCases), { "EX": 600 });
+
+            return new ApiResponse(200, "User Cases", getCases);
+
+        } catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
+
 }
 const mutations = {
-    caseRegister: async (parent, args, context) => {
-        console.log("Args:Outside", args, context);
-        if (context.role === "USER") {
-            try {
+    caseRegister: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside CaseRegister", args);
+        try {
+            if (context.user.role != "USER") {
+                throw new ApiError(401, "Unauthorized", {}, false);
+            }
+            return await Transaction.startTransaction(async () => {
+
                 const getAgencyFromPincode = await AgencyService.getAgencyFromPincode({ pincode: args.data.pincode });
                 console.log("Agency", getAgencyFromPincode);
-                if (getAgencyFromPincode) {
-                    const caseRegister = await UserService.caseRegister({ account: context.id, ...args.data });
-                    console.log("Case Register", caseRegister);
 
-                    if (caseRegister) {
-                        // console.log("Args evidence",args.data.evidence);
-                        const mapCaseAgency = await UserService.mapCaseAgency({ caseId: caseRegister.id, agencyId: getAgencyFromPincode.accountId });
-                        if (mapCaseAgency) {
-                            console.log("Case Registered and Agency Mapped");
-                        }
-                        if (args.data.evidence) {
-                            // console.log(args.evidence);
-                            const updateCaseEvidence = await UserService.updateCaseEvidence({ account: caseRegister.id, evidence: args.data.evidence });
-                            if (updateCaseEvidence) {
-                                return { message: "Case Registered and Evidence Updated" }
-                            }
-
-                        }
-                        return { message: "Case Registered" }
-                    }
+                if (!getAgencyFromPincode) {
+                    throw new ApiError(404, "No Agency in this location", {});
                 }
-                return { message: "Agency not found" }
-            }
-            catch (err) {
-                return { message: err.message }
-            }
+                const caseRegister = await UserService.caseRegister({ account: context.user.id, ...args.data });
+                console.log("Case Register", caseRegister);
+
+                if (!caseRegister) {
+                    throw new ApiError(405, "Case Registration Failed", {});
+                }
+                const mapCaseAgency = await UserService.mapCaseAgency({ caseId: caseRegister.id, agencyId: getAgencyFromPincode.accountId });
+                console.log(mapCaseAgency)
+
+                if (!mapCaseAgency) {
+                    throw new ApiError(405, "Case Registration Failed", {});
+                }
+                if (args.data.evidence) {
+                    const updateCaseEvidence = await UserService.updateCaseEvidence({ account: caseRegister.id, evidence: args.data.evidence });
+                    console.log(updateCaseEvidence);
+
+                    return new ApiResponse(200, "Case Report sent to Agency", { caseRegister, mapCaseAgency, updateCaseEvidence })
+                }
+                return new ApiResponse(200, "Case Report sent to Agency", { caseRegister, mapCaseAgency })
+
+            });
+
         }
-        else {
-            throw new Error("Unauthorized")
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
-    
-    register: async (parent, args, context) => {
-        console.log("Args:Outside", args);
+
+    register: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside Register", args);
         try {
-            const accountService = await UserService.userRegister(args);
-            if (accountService) {
-                return { message: "User Registered" }
-            }
+            const register = await UserService.userRegister(args);
+            return new ApiResponse(202, "User Registered", register);
+
         }
-        catch (err) {
-            return { message: err.message }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     }
 }
-export const resolvers = { mutations,queries }
+export const resolvers = { mutations, queries }

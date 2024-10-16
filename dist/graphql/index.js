@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createApolloServer = void 0;
 const server_1 = require("@apollo/server");
 const account_1 = require("./others/account");
-// import { Event } from './others/events';
 const notifications_1 = require("./others/notifications");
 const agency_1 = require("./agency");
 const admin_1 = require("./admin");
@@ -11,14 +10,10 @@ const users_1 = require("./users");
 const alert_1 = require("./others/alert");
 const case_1 = require("./others/case");
 const event_1 = require("./others/event");
+const typedefs_1 = require("./typedefs");
 const createApolloServer = new server_1.ApolloServer({
     typeDefs: `
-        ${account_1.Account.typedefs}
-        ${agency_1.Agency.typedefs}
-        ${admin_1.Admin.typedefs}
-        ${users_1.User.typedefs}
-        ${alert_1.Alert.typedefs}
-        ${notifications_1.Notification.typedefs}
+        ${typedefs_1.typedefs}
         type Query {
             ${account_1.Account.queries}
             ${agency_1.Agency.queries}

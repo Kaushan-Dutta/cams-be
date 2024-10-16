@@ -2,7 +2,7 @@ import { db } from "../lib/db.config";
 class AlertService {
     public static getAlerts(payload:any) {
         const { agencyId } = payload;
-        console.log("Args:Inside", agencyId);
+        console.log("Args:Inside GetAlerts", payload);
         return db.alert.findMany({
             where: {
                 agencyId: agencyId
@@ -11,6 +11,7 @@ class AlertService {
     }
     public static async postAlert(payload:any) {
         const { latitude, longitude } = payload
+        console.log("Args:Inside PostAlert",payload);
         const agencies = await db.location.findMany();
 
         let agencyId = null;

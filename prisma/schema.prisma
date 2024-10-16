@@ -162,6 +162,8 @@ model Event {
   location    String
   date        String
   description String
+  startTime   String?
+  endTime     String?
 
   @@map("events")
 }

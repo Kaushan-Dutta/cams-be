@@ -1,26 +1,12 @@
 export const typedefs = `#graphql
-    type Agency {
-        id: String
-        name: String
-        email: String
-        pincode: String
-        phone: String
-        document: String
-        latitude: String
-        longitude: String
-        state: String
-        city: String
-    },
-    input AgencyApplyForm {
+    input CaseFormInput {
+        type: CaseType!
         name: String!
-        email: String!
-        pincode: String!
         phone: String!
-        document: String!
-        latitude: Float!
-        longitude: Float!
-        state: String!
-        city: String!
+        pincode: String!
+        evidence: [EvidenceInput]
+        document: String
+        
     },
     input CaseFilterType  {
         accountId: String
@@ -30,20 +16,6 @@ export const typedefs = `#graphql
         createdAt: String
         type: CaseType
     },
-    type Evidence {
-        id: String
-        url: String
-        file: String
-        description: String
-        caseId:String
-    },
-    input EvidenceInput {
-        id: String
-        url: String
-        file: String
-        description: String!
-        caseId:String
-    }
     enum CaseType {
         CYBER
         MISSING
@@ -70,9 +42,19 @@ export const typedefs = `#graphql
         account: Account
         createdAt: String
         agency: Agency
+    },
+    type Evidence {
+        id: String
+        url: String
+        file: String
+        description: String
+        caseId:String
+    },
+    input EvidenceInput {
+        id: String
+        url: String
+        file: String
+        description: String!
+        caseId:String
     }
-
 `
-
-
-

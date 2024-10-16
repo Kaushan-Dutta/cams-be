@@ -1,31 +1,24 @@
-//@ts-nocheck
 import NotificationService from "../../services/notification";
+import ApiResponse from "../../utils/ApiResponse";
+import ApiError from "../../utils/ApiError";
+import { ResolverProps } from "../../types";
 
-const typedefs = `#graphql
-    type Notification {
-        id:ID!
-        message:String!
-        createdAt:String!
-    }
-`
 const notification_query = `#graphql
-    getNotifications: [Notification]
+    getNotifications: Response
 `
 const queries = {
-    getNotifications: async (parent, args, context) => {
+    getNotifications: async (parent:any, args:any, context:any) => {
         console.log("Args:Outside", args);
         try {
             const notification=await  NotificationService.getNotifications({id:context.id});  
-            console.log("Notification",notification);
-            return notification;          
+            return new ApiResponse(200,"Notificatiosn Fetched",notification);        
         }
-        catch (err) {
-            return err
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     }
 }
 export const Notification = {
-    typedefs: typedefs,
     queries: notification_query,
     resolvers: {
         queries: queries

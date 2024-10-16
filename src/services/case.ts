@@ -2,7 +2,7 @@ import { db } from "../lib/db.config";
 class CaseService {
     public static getCase(payload: any) {
         const { id } = payload;
-        console.log("Args:Inside", id);
+        console.log("Args:Inside Get Case", payload);
         return db.caseAgencyMap.findFirst({
             where: {
                 caseId: id
@@ -24,7 +24,7 @@ class CaseService {
         });
     }
     public static async updateEvidence(payload: any) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UpdateEvidence", payload);
 
         try {
             for (let i = 0; i < payload.data.length; i++) {

@@ -1,61 +1,49 @@
-//@ts-nocheck
-
+import ApiError from "../../utils/ApiError";
+import ApiResponse from "../../utils/ApiResponse";
+import { ResolverProps } from "../../types";
 import AlertService from "../../services/alert";
 
-const typedefs=`#graphql
-    type Alert {
-        id: String!
-        latitude: Float!
-        longitude: Float!
-        status:ApplicationStatus!
-        agencyId:String,
-        createdAt:String
-    },
-    
-`
 const alert_query = `#graphql
-    getAlerts: [Alert]
+    getAlerts: Response
 `
 const alert_mutation = `#graphql
     postAlert(latitude:String,longitude:String): Response
 `
-const queries={
-        
-        getAlerts: async (parent,args,context) => {
-            console.log("Args:Outside for alerts",args);
-            try {
-                const alerts=await AlertService.getAlerts({agencyId:context.id});
-                // console.log("Alerts",alerts);
-                return alerts;
-            }
-            catch (err) {
-                return {message:err.message}
-            }
-        }
-}
-const mutations={
-        
-    postAlert: async (parent,args,context) => {
-        console.log("Args:Outside",args);
+const queries = {
+
+    getAlerts: async (parent:any, args:any, context:any) => {
+        console.log("Args:Outside for alerts", args);
         try {
-            const alertService = await AlertService.postAlert(args);
-            if(alertService){
-                return {message:"Alert Posted"}            
+            if(context.user.role != 'AGENCY') {
+                throw new ApiError(401, "Unauthorized")
             }
+            const alerts = await AlertService.getAlerts({ agencyId: context.id });
+            return new ApiResponse(200, "Alerts Fetched", alerts);
+        }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
+        }
+    }
+}
+const mutations = {
+
+    postAlert: async (parent:any, args:any, context:any) => {
+        console.log("Args:Outside", args);
+        try {
+            const alert = await AlertService.postAlert(args);
+            return new ApiResponse(201, "Alert Posted", alert)
 
         }
-        catch (err) {
-            console.log(err.message)
-            return {message:err.message}
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     }
 }
 export const Alert = {
-    typedefs: typedefs,
     queries: alert_query,
-    mutations:alert_mutation,
+    mutations: alert_mutation,
     resolvers: {
         queries: queries,
-        mutations:mutations
+        mutations: mutations
     }
 }

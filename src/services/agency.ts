@@ -4,7 +4,7 @@ import { db } from "../lib/db.config";
 class AgencyService {
     public static agencyRegister(payload) {
         const { email, name, phone, document, pincode, latitude, longitude, sate } = payload
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside AgencyRegister", payload);
         return db.agencyApplication.create({
             data: {
                 ...payload
@@ -14,6 +14,7 @@ class AgencyService {
     }
     public static getAgencyFromPincode(payload) {
         const { pincode } = payload
+        console.log("Args:Inside GetAgencyFromPincode", payload);
         return db.location.findFirst({
             where: { pincode: pincode },
         });
@@ -21,7 +22,7 @@ class AgencyService {
 
     public static updateAlert(payload) {
         const { id, status } = payload
-        console.log("Args:Inside", id, status);
+        console.log("Args:Inside UpdateAlert", payload);
         return db.alert.update({
             where: { id: id },
             data: { status: status },
@@ -29,7 +30,7 @@ class AgencyService {
     }
 
     public static updateCaseStatus(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UpdateCaseStatus", payload);
         const { id, status } = payload
         console.log(id, status);
         return db.caseApplication.update({
@@ -38,7 +39,7 @@ class AgencyService {
         })
     }
     public static getAgencyCases(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside GetAgencyCases", payload);
         const { agencyId } = payload
         return db.caseAgencyMap.findMany({
             where: {
@@ -51,7 +52,7 @@ class AgencyService {
 
     }
     public static async getAllCases() {
-        console.log("Args:Inside");
+        console.log("Args:Inside GetAllCases");
         const cases=await db.caseAgencyMap.findMany({
             
             select: {
@@ -74,7 +75,7 @@ class AgencyService {
   
 
     public static getAgencyCaseMap(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside GetAgencyCaseMap", payload);
         const { agencyId, caseId } = payload
         return db.caseAgencyMap.findFirst({
             where: {

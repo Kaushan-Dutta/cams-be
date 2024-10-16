@@ -17,7 +17,7 @@ class NotificationService {
         }
     }
     public static async createNotification(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside CreateNotification", payload);
         const { messageType, data } = payload;
         const message = this.setMessage(messageType, data)
 
@@ -34,7 +34,7 @@ class NotificationService {
     }
 
     public static async getNotifications(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside GetNotifications", payload);
         const { id } = payload
         return db.notification.findMany({
             where: {

@@ -1,9 +1,10 @@
 //@ts-nocheck
 import { db } from "../lib/db.config";
+import redisclient from '../lib/redis.config'
 
 class UserService {
     public static userRegister(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UserRegister", payload);
         const { email, password } = payload
         return db.account.create({
             data: {
@@ -13,7 +14,7 @@ class UserService {
         })
     }
     public static async caseRegister(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside CaseRegister", payload);
         const { type, name, phone, pincode, document, account } = payload
         return db.caseApplication.create({
             data: {
@@ -28,7 +29,7 @@ class UserService {
         })
     }
     public static async mapCaseAgency(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside MapCaseAgency", payload);
         const { caseId, agencyId } = payload
         
         return db.caseAgencyMap.create({
@@ -42,7 +43,7 @@ class UserService {
         
     }
     public static async updateCaseEvidence(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UpdateCaseEvidence", payload);
         const { account, evidence } = payload
         for (let i = 0; i < evidence.length; i++) {
             await db.evidence.create({
@@ -56,10 +57,11 @@ class UserService {
     }
 
     public static getCases(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside the getCases", payload);
+        
         return db.caseApplication.findMany({
             where: {
-                ...payload
+                accountId:payload.accounId
             }
         })
     }

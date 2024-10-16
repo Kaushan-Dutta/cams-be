@@ -13,80 +13,78 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-//@ts-nocheck
 const agency_1 = __importDefault(require("../../services/agency"));
 const user_1 = __importDefault(require("../../services/user"));
+const redis_config_1 = __importDefault(require("../../lib/redis.config"));
+const ApiError_1 = __importDefault(require("../../utils/ApiError"));
+const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
+const TransactionManager_1 = __importDefault(require("../../managers/TransactionManager"));
 const queries = {
     getUserCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args);
+        console.log("Args: Outside of GetUserCases", args);
         try {
-            if (context.role === "USER") {
-                let filter = {};
-                if (args.accountId)
-                    filter.accountId = context.id;
-                if (args.status)
-                    filter.status = args.status;
-                if (args.type)
-                    filter.type = args.type;
-                if (args.createdAt)
-                    filter.createdAt = args.createdAt;
-                return yield user_1.default.getCases(filter);
+            if (context.user.role != "USER") {
+                throw new ApiError_1.default(401, "Unauthorized", {}, false);
             }
-            else {
-                throw new Error("Unauthorized");
+            const caseKey = `cases:${context.user.id}`;
+            console.log("Case Key:", caseKey);
+            let cachedCases = yield redis_config_1.default.get(caseKey);
+            if (cachedCases) {
+                console.log("Returning cached cases");
+                return new ApiResponse_1.default(200, "User Cases from cached", JSON.parse(cachedCases));
             }
+            const getCases = yield user_1.default.getCases({ accounId: context.user.id });
+            yield redis_config_1.default.set(caseKey, JSON.stringify(getCases), { "EX": 600 });
+            return new ApiResponse_1.default(200, "User Cases", getCases);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
 };
 const mutations = {
     caseRegister: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args, context);
-        if (context.role === "USER") {
-            try {
+        console.log("Args:Outside CaseRegister", args);
+        try {
+            if (context.user.role != "USER") {
+                throw new ApiError_1.default(401, "Unauthorized", {}, false);
+            }
+            return yield TransactionManager_1.default.startTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
                 const getAgencyFromPincode = yield agency_1.default.getAgencyFromPincode({ pincode: args.data.pincode });
                 console.log("Agency", getAgencyFromPincode);
-                if (getAgencyFromPincode) {
-                    const caseRegister = yield user_1.default.caseRegister(Object.assign({ account: context.id }, args.data));
-                    console.log("Case Register", caseRegister);
-                    if (caseRegister) {
-                        // console.log("Args evidence",args.data.evidence);
-                        const mapCaseAgency = yield user_1.default.mapCaseAgency({ caseId: caseRegister.id, agencyId: getAgencyFromPincode.accountId });
-                        if (mapCaseAgency) {
-                            console.log("Case Registered and Agency Mapped");
-                        }
-                        if (args.data.evidence) {
-                            // console.log(args.evidence);
-                            const updateCaseEvidence = yield user_1.default.updateCaseEvidence({ account: caseRegister.id, evidence: args.data.evidence });
-                            if (updateCaseEvidence) {
-                                return { message: "Case Registered and Evidence Updated" };
-                            }
-                        }
-                        return { message: "Case Registered" };
-                    }
+                if (!getAgencyFromPincode) {
+                    throw new ApiError_1.default(404, "No Agency in this location", {});
                 }
-                return { message: "Agency not found" };
-            }
-            catch (err) {
-                return { message: err.message };
-            }
+                const caseRegister = yield user_1.default.caseRegister(Object.assign({ account: context.user.id }, args.data));
+                console.log("Case Register", caseRegister);
+                if (!caseRegister) {
+                    throw new ApiError_1.default(405, "Case Registration Failed", {});
+                }
+                const mapCaseAgency = yield user_1.default.mapCaseAgency({ caseId: caseRegister.id, agencyId: getAgencyFromPincode.accountId });
+                console.log(mapCaseAgency);
+                if (!mapCaseAgency) {
+                    throw new ApiError_1.default(405, "Case Registration Failed", {});
+                }
+                if (args.data.evidence) {
+                    const updateCaseEvidence = yield user_1.default.updateCaseEvidence({ account: caseRegister.id, evidence: args.data.evidence });
+                    console.log(updateCaseEvidence);
+                    return new ApiResponse_1.default(200, "Case Report sent to Agency", { caseRegister, mapCaseAgency, updateCaseEvidence });
+                }
+                return new ApiResponse_1.default(200, "Case Report sent to Agency", { caseRegister, mapCaseAgency });
+            }));
         }
-        else {
-            throw new Error("Unauthorized");
+        catch (err) {
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     register: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args);
+        console.log("Args:Outside Register", args);
         try {
-            const accountService = yield user_1.default.userRegister(args);
-            if (accountService) {
-                return { message: "User Registered" };
-            }
+            const register = yield user_1.default.userRegister(args);
+            return new ApiResponse_1.default(202, "User Registered", register);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     })
 };

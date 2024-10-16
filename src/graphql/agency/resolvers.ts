@@ -1,102 +1,98 @@
-//@ts-nocheck
 import AgencyService from "../../services/agency";
 import NotificationService from "../../services/notification";
-// id: String
-//         accountId: String
-//         status: CaseStatus
-//         agencyId: String
-//         userId: String
-//         createdAt: String
-//         type: CaseType
+import { ResolverProps } from "../../types";
+import ApiError from "../../utils/ApiError";
+import ApiResponse from "../../utils/ApiResponse";
+import Transaction from "../../managers/TransactionManager";
+
 const queries = {
-    getAgencyCases: async (parent, args, context) => {
-        console.log("Args:Outside ");
+    getAgencyCases: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside GetAgencyCases");
         try {
-            // console.log("Context",context.role);   
-            const cases = await AgencyService.getAgencyCases({ agencyId: context.id });
+            // console.log("Context",context.user.role);   
+            const cases = await AgencyService.getAgencyCases({ agencyId: context.user.id });
             const casesData = cases.map((item) => {
                 return item.case
             })
-            // console.log("Cases",cases);
-            return casesData;
+            console.log("Cases", casesData);
+            return new ApiResponse(200, "Agency Cases", casesData);
         }
-        catch (err) {
-            return { message: err.message }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
-    getAllCases: async (parent, args, context) => {
-        console.log("Args:Outside for get all cases");
+    getAllCases: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside for getAllCases");
         try {
-            const cases=await AgencyService.getAllCases();  
-            console.log("Cases",cases);
-            const casesFile=cases.map((item)=>{
+            if (context.user.role != 'AGENCY') {
+                throw new ApiError(401, 'Unauthorized');
+            }
+            const cases = await AgencyService.getAllCases();
+            // console.log("All files", cases)
+
+            const casesFile = cases.map((item) => {
                 return {
                     ...item.case,
-                    agency:item.agency
+                    agency: item.agency
                 }
-            }) 
-            console.log("Cases",casesFile);
-            return casesFile; 
+            })
+            // console.log("All files", casesFile)
+            return new ApiResponse(200, "All Registered Cases", casesFile);
         }
-        catch (err) {
-            return { message: err.message }
+
+
+
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
-    },
-    alerts: async (parent, args, context) => {
-        return { message: "Alerts fetched" }
     }
 }
 const mutations = {
-    agencyRegister: async (parent, args, context) => {
-        console.log("Args:Outside", args);
+    agencyRegister: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside AgencyRegister", args);
         try {
             const register = await AgencyService.agencyRegister(args.data);
-            if (register) {
-                return { message: "Agency Registered" }
-            }
+            return new ApiResponse(201, "Agency Registered", register);
         }
-        catch (err) {
-            return { message: err.message }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
-    updateAlert: async (parent, args, context) => {
-        console.log("Args:outside", args);
+    updateAlert: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside UpdateAlert", args);
         try {
-            const update = await AgencyService.updateAlert(args);
-            if (update) {
-                return { message: "Alert Updated" }
-            }
-            return { message: "Alert not updated" }
+            const alert = await AgencyService.updateAlert(args);
+
+            return new ApiResponse(200, "Alert Updated", alert);
         }
-        catch (err) {
-            return { message: err.message }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
 
-    updateCaseStatus: async (parent, args, context) => {
-        console.log("Args:outside", args);
+    updateCaseStatus: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside UpdateCaseStatus", args);
         try {
-            const check_case_agency = await AgencyService.getAgencyCaseMap({ agencyId: context.id, caseId: args.id });
+            const check_case_agency = await AgencyService.getAgencyCaseMap({ agencyId: context.user.id, caseId: args.id });
             console.log("Check Case Agency", check_case_agency);
 
             if (!check_case_agency) {
-                return { message: "Case not assigned to Agency" }
+                return new ApiError(404, "No case in your control")
             }
-            const update = await AgencyService.updateCaseStatus(args);
-            if (update) {
-                const notification = await NotificationService.createNotification({
+            return await Transaction.startTransaction(async () => {
+                const update = await AgencyService.updateCaseStatus(args);
+                await NotificationService.createNotification({
                     messageType: args.status == "APPROVED" ? 'CASE_ACCEPT' : 'CASE_REJECT', data: {
                         name: update.name,
                         agency_name: check_case_agency.agency.name
                     }, type: "PERSONAL", receiverId: update.accountId
                 });
-                return { message: "Case Status Updated" }
-            }
-            return { message: "Case Status not updated" }
+                return new ApiResponse(200, "Case Updated", update);
+            })
+
         }
-        catch (err) {
-            console.log("Error", err.message);
-            throw new Error(err.message)
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     }
 }

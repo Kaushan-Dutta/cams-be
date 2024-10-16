@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { db } from '../lib/db.config'
+import redisclient from '../lib/redis.config'
 
 const jwt = require('jsonwebtoken')
 const JWT_SECRET = process.env.JWT_SECRET
@@ -7,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET
 class AccountService {
     public static async accountLogin(payload) {
         const { email, password } = payload
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside AccountLogin", payload);
         const account = await db.account.findUnique({
             where: {
                 email: email,
@@ -34,7 +35,7 @@ class AccountService {
     }
     public static updateAccount(payload) {
         const { id } = payload
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UpdateAccount", payload);
         return db.account.update({
             where: {
                 id: id

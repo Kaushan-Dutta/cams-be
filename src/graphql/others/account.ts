@@ -1,31 +1,15 @@
-//@ts-nocheck
 import AccountService from '../../services/account'
-import { InputProps } from '../types'
-
-const typedefs = `#graphql
-    enum Role {
-        ADMIN
-        USER
-        AGENCY
-    }
-    type Account {
-        id: ID!
-        email: String!
-        password: String
-        role: Role!
-        name: String
-        phone: String
-    }
-    type Response {
-        message: String!
-        data: String
-    }
-
-`
+import redisclient from '../../lib/redis.config'
+import ApiError from '../../utils/ApiError'
+import ApiResponse from '../../utils/ApiResponse'
+import { ResolverProps } from '../../types'
+import { GraphQLJSON } from 'graphql-type-json';
 
 const account_query = `#graphql
         accountLogin(email: String!, password: String!): Response,
-        getAccount: Account
+        accountLogout: Response,
+
+        getAccount: Response
 `
 
 const account_mutation = `#graphql
@@ -33,51 +17,77 @@ const account_mutation = `#graphql
 `
 
 const queries = {
-    
-    accountLogin: async (parent,args,context) => {
-        console.log("Args:Outside",args);
+
+    accountLogin: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside AccounLogin", args);
         try {
-            const accountService = await AccountService.accountLogin(args);
-            if(accountService){
-                return {message:"User Logged In",data:accountService}            
+            if (!context?.user?.id) {
+                const login = await AccountService.accountLogin(args);
+        
+                if (login) {
+                    context.res.cookie('jwtToken', login, {
+                        maxAge: 60 * 60 * 1000*7 , 
+                        httpOnly: true,
+                        path: '/',
+                        secure: true
+                    });
+                    // console.log(context.res);
+                    return new ApiResponse(200, "Accountlogin", login)
+                }
+                return new ApiResponse(404, "Account Not Found")
             }
+            return new ApiResponse(200, "Already LoggedIn")
         }
-        catch (err) {
-            return {message:err.message}
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
+        
     },
-    getAccount: async (parent,args,context) => {
-    
+    accountLogout: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside AccounLogout", args);
         try {
-            return context
+            context?.res?.cookie('jwtToken', '', {
+                maxAge: 0,
+            })
+            return new ApiResponse(200, "Accountlogout")
+
         }
-        catch (err) {
-            throw new Error(err.message)
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     },
-    
+    getAccount: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside GetAccount", args);
+
+        try {
+            // console.log(context.user);
+            return new ApiResponse(200, "Your account", context.user);
+        }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
+        }
+    },
+
 }
 const mutations = {
-    updateAccount: async (parent,args,context) => {
-        console.log("Args:Outside in updation",args);
+    updateAccount: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside in updation", args);
         try {
-            const update=await AccountService.updateAccount({...args,id:context.id});
-            console.log("The updateion",update);
-            if(update){
-                return {message:"Account Updated"}            
-            }
+            const update = await AccountService.updateAccount({ ...args, id: context.user.id });
+            console.log("The updateion", update);
+            return new ApiResponse(200, "Account Updated", update)
         }
-        catch (err) {
-            return {message:err.message}
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
         }
     }
 }
 export const Account = {
-    typedefs: typedefs,
     queries: account_query,
-    mutations:account_mutation,
+    mutations: account_mutation,
     resolvers: {
+        JSON: GraphQLJSON,
         queries: queries,
-        mutations:mutations
+        mutations: mutations
     }
 }

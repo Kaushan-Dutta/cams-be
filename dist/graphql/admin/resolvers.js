@@ -1,5 +1,4 @@
 "use strict";
-//@ts-nocheck
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -16,53 +15,74 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const admin_1 = __importDefault(require("../../services/admin"));
 const notification_1 = __importDefault(require("../../services/notification"));
+const ApiError_1 = __importDefault(require("../../utils/ApiError"));
+const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
+const TransactionManager_1 = __importDefault(require("../../managers/TransactionManager"));
+const redis_config_1 = __importDefault(require("../../lib/redis.config"));
 const queries = {
     getAgencyForms: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside GetAgencyForms", args);
         try {
+            if (context.user.role != 'ADMIN') {
+                throw new ApiError_1.default(401, "Unauthorized");
+            }
             const forms = yield admin_1.default.getAgencyForms();
-            return forms;
+            return new ApiResponse_1.default(200, "Agency Register Forms", forms);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     getEvents: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Agrs:Outside ", args);
+        console.log("Args:Outside GetEvents", args);
         try {
+            let cachedEvent = yield redis_config_1.default.get("events");
+            if (cachedEvent) {
+                return new ApiResponse_1.default(200, "Events from cached", JSON.parse(cachedEvent));
+            }
             const events = yield admin_1.default.getEvents();
-            return events;
+            yield redis_config_1.default.set("events", JSON.stringify(events), { "EX": 600 });
+            return new ApiResponse_1.default(200, "Events", events);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     })
 };
 const mutations = {
     updateAgencyFormStatus: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside in update form", args);
+        console.log("Args:Outside UpdateAgencyFormStatus", args);
         try {
-            const update = yield admin_1.default.updateAgencyFormStatus(args);
-            if (update) {
-                return { message: "Agency Form Status Updated" };
+            if (context.user.role != 'ADMIN') {
+                throw new ApiError_1.default(401, "Unauthorized");
             }
+            return yield TransactionManager_1.default.startTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
+                return yield admin_1.default.updateAgencyFormStatus(args);
+            }));
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     createEvent: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args);
+        console.log("Args:Outside CreateEvent", args);
         try {
-            const event = yield admin_1.default.createEvent(args.data);
-            if (event) {
+            if (context.user.role != 'ADMIN') {
+                throw new ApiError_1.default(401, "Unauthorized");
+            }
+            return yield TransactionManager_1.default.startTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
+                const event = yield admin_1.default.createEvent(args.data);
                 const notification = yield notification_1.default.createNotification({ messageType: "EVENT", data: args.data, type: "BROADCAST" });
                 if (notification) {
-                    return { message: "Event Created and notification sent" };
+                    return new ApiResponse_1.default(201, "Event Created", { event, notification });
                 }
-            }
+                else {
+                    throw new ApiError_1.default(404, "Event Not Found", {}, false);
+                }
+            }));
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     })
 };

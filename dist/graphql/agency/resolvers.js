@@ -13,100 +13,88 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-//@ts-nocheck
 const agency_1 = __importDefault(require("../../services/agency"));
 const notification_1 = __importDefault(require("../../services/notification"));
-// id: String
-//         accountId: String
-//         status: CaseStatus
-//         agencyId: String
-//         userId: String
-//         createdAt: String
-//         type: CaseType
+const ApiError_1 = __importDefault(require("../../utils/ApiError"));
+const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
+const TransactionManager_1 = __importDefault(require("../../managers/TransactionManager"));
 const queries = {
     getAgencyCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside ");
+        console.log("Args:Outside GetAgencyCases");
         try {
-            // console.log("Context",context.role);   
-            const cases = yield agency_1.default.getAgencyCases({ agencyId: context.id });
+            // console.log("Context",context.user.role);   
+            const cases = yield agency_1.default.getAgencyCases({ agencyId: context.user.id });
             const casesData = cases.map((item) => {
                 return item.case;
             });
-            // console.log("Cases",cases);
-            return casesData;
+            console.log("Cases", casesData);
+            return new ApiResponse_1.default(200, "Agency Cases", casesData);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     getAllCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside for get all cases");
+        console.log("Args:Outside for getAllCases");
         try {
+            if (context.user.role != 'AGENCY') {
+                throw new ApiError_1.default(401, 'Unauthorized');
+            }
             const cases = yield agency_1.default.getAllCases();
-            console.log("Cases", cases);
+            // console.log("All files", cases)
             const casesFile = cases.map((item) => {
                 return Object.assign(Object.assign({}, item.case), { agency: item.agency });
             });
-            console.log("Cases", casesFile);
-            return casesFile;
+            // console.log("All files", casesFile)
+            return new ApiResponse_1.default(200, "All Registered Cases", casesFile);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
-    }),
-    alerts: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        return { message: "Alerts fetched" };
     })
 };
 const mutations = {
     agencyRegister: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside", args);
+        console.log("Args:Outside AgencyRegister", args);
         try {
             const register = yield agency_1.default.agencyRegister(args.data);
-            if (register) {
-                return { message: "Agency Registered" };
-            }
+            return new ApiResponse_1.default(201, "Agency Registered", register);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     updateAlert: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:outside", args);
+        console.log("Args:Outside UpdateAlert", args);
         try {
-            const update = yield agency_1.default.updateAlert(args);
-            if (update) {
-                return { message: "Alert Updated" };
-            }
-            return { message: "Alert not updated" };
+            const alert = yield agency_1.default.updateAlert(args);
+            return new ApiResponse_1.default(200, "Alert Updated", alert);
         }
         catch (err) {
-            return { message: err.message };
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     }),
     updateCaseStatus: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:outside", args);
+        console.log("Args:Outside UpdateCaseStatus", args);
         try {
-            const check_case_agency = yield agency_1.default.getAgencyCaseMap({ agencyId: context.id, caseId: args.id });
+            const check_case_agency = yield agency_1.default.getAgencyCaseMap({ agencyId: context.user.id, caseId: args.id });
             console.log("Check Case Agency", check_case_agency);
             if (!check_case_agency) {
-                return { message: "Case not assigned to Agency" };
+                return new ApiError_1.default(404, "No case in your control");
             }
-            const update = yield agency_1.default.updateCaseStatus(args);
-            if (update) {
-                const notification = yield notification_1.default.createNotification({
+            return yield TransactionManager_1.default.startTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
+                const update = yield agency_1.default.updateCaseStatus(args);
+                yield notification_1.default.createNotification({
                     messageType: args.status == "APPROVED" ? 'CASE_ACCEPT' : 'CASE_REJECT', data: {
                         name: update.name,
                         agency_name: check_case_agency.agency.name
                     }, type: "PERSONAL", receiverId: update.accountId
                 });
-                return { message: "Case Status Updated" };
-            }
-            return { message: "Case Status not updated" };
+                return new ApiResponse_1.default(200, "Case Updated", update);
+            }));
         }
         catch (err) {
-            console.log("Error", err.message);
-            throw new Error(err.message);
+            throw new ApiError_1.default(500, err.message, {}, false);
         }
     })
 };

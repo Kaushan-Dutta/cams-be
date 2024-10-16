@@ -1,4 +1,4 @@
 export const queries = `#graphql
-    getAgencyForms:[AgencyApplications],
-    getEvents:[Event],
+    getAgencyForms:Response,
+    getEvents:Response
 `

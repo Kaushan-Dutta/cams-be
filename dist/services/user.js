@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_config_1 = require("../lib/db.config");
 class UserService {
     static userRegister(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside UserRegister", payload);
         const { email, password } = payload;
         return db_config_1.db.account.create({
             data: {
@@ -24,7 +24,7 @@ class UserService {
     }
     static caseRegister(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Args:Inside", payload);
+            console.log("Args:Inside CaseRegister", payload);
             const { type, name, phone, pincode, document, account } = payload;
             return db_config_1.db.caseApplication.create({
                 data: {
@@ -40,7 +40,7 @@ class UserService {
     }
     static mapCaseAgency(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Args:Inside", payload);
+            console.log("Args:Inside MapCaseAgency", payload);
             const { caseId, agencyId } = payload;
             return db_config_1.db.caseAgencyMap.create({
                 data: {
@@ -52,7 +52,7 @@ class UserService {
     }
     static updateCaseEvidence(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Args:Inside", payload);
+            console.log("Args:Inside UpdateCaseEvidence", payload);
             const { account, evidence } = payload;
             for (let i = 0; i < evidence.length; i++) {
                 yield db_config_1.db.evidence.create({
@@ -63,9 +63,11 @@ class UserService {
         });
     }
     static getCases(payload) {
-        console.log("Args:Inside", payload);
+        console.log("Args:Inside the getCases", payload);
         return db_config_1.db.caseApplication.findMany({
-            where: Object.assign({}, payload)
+            where: {
+                accountId: payload.accounId
+            }
         });
     }
 }

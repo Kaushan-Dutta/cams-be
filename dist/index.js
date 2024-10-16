@@ -42,30 +42,40 @@ const graphql_1 = require("./graphql");
 const account_1 = __importDefault(require("./services/account"));
 const dotenv = __importStar(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const redis_config_1 = __importDefault(require("./lib/redis.config"));
 dotenv.config();
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         app.use(express_1.default.json());
+        // app.use(cookieParser());
         app.use((0, cors_1.default)({
             origin: true,
             // methods: 'GET,PUT,PATCH,POST,DELETE',
             // preflightContinue: false,
             // optionsSuccessStatus: 204,
             // allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true
         }));
         app.get('/', (req, res) => {
             res.status(200).json({ message: "Server up and running" });
         });
+        yield redis_config_1.default.connect();
+        console.log('Redis running on port 6739');
         yield graphql_1.createApolloServer.start();
         app.use('/graphql', (0, express4_1.expressMiddleware)(graphql_1.createApolloServer, {
             // @ts-ignore
-            context: ({ req }) => {
-                var _a;
-                const token = (_a = (req.headers['authorization'])) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+            context: ({ req, res }) => {
+                var _a, _b, _c;
+                // console.log(req?.headers?.cookie?.split('=')[1] );
+                const token = ((_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) || ((_c = (_b = req === null || req === void 0 ? void 0 : req.headers) === null || _b === void 0 ? void 0 : _b.cookie) === null || _c === void 0 ? void 0 : _c.split('=')[1]);
                 if (token) {
-                    return account_1.default.decodeJWT({ token: token });
+                    // console.log("Token:", token);
+                    const decoded = account_1.default.decodeJWT({ token });
+                    // console.log("Decoded:", decoded);
+                    return { user: decoded, res };
                 }
+                return { res };
             }
         }));
         const httpServer = http_1.default.createServer(app);
