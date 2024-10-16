@@ -5,8 +5,19 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
-    "dev": "tsc-watch --onSuccess \"npm start\""
+    "dev": "tsc-watch --onSuccess \"npm start\"",
+    "postinstall": "prisma generate"
   },
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build && prisma generate"
+      }
+    }
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
