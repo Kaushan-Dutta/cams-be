@@ -48,13 +48,8 @@ function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         app.use(express_1.default.json());
-        // app.use(cookieParser());
         app.use((0, cors_1.default)({
             origin: true,
-            // methods: 'GET,PUT,PATCH,POST,DELETE',
-            // preflightContinue: false,
-            // optionsSuccessStatus: 204,
-            // allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true
         }));
         app.get('/', (req, res) => {
@@ -67,12 +62,9 @@ function init() {
             // @ts-ignore
             context: ({ req, res }) => {
                 var _a, _b, _c;
-                // console.log(req?.headers?.cookie?.split('=')[1] );
                 const token = ((_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) || ((_c = (_b = req === null || req === void 0 ? void 0 : req.headers) === null || _b === void 0 ? void 0 : _b.cookie) === null || _c === void 0 ? void 0 : _c.split('=')[1]);
                 if (token) {
-                    // console.log("Token:", token);
                     const decoded = account_1.default.decodeJWT({ token });
-                    // console.log("Decoded:", decoded);
                     return { user: decoded, res };
                 }
                 return { res };
@@ -83,6 +75,8 @@ function init() {
         httpServer.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
+        return app;
     });
 }
-init();
+const app = init();
+exports.default = app;

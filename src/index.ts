@@ -7,7 +7,6 @@ import * as dotenv from 'dotenv';
 import cors from "cors";
 import redisclient from './lib/redis.config';
 
-
 dotenv.config();
 
 export type InputProps = {
@@ -20,17 +19,11 @@ async function init() {
     const app = express();
 
     app.use(express.json());
-    // app.use(cookieParser());
-    app.use(cors(
-        {
-            origin: true,
-            // methods: 'GET,PUT,PATCH,POST,DELETE',
-            // preflightContinue: false,
-            // optionsSuccessStatus: 204,
-            // allowedHeaders: ['Content-Type', 'Authorization'],
-            credentials: true
-        }
-    ));
+    app.use(cors({
+        origin: true,
+        credentials: true
+    }));
+
     app.get('/', (req, res) => {
         res.status(200).json({ message: "Server up and running" });
     });
@@ -40,18 +33,15 @@ async function init() {
 
     await createApolloServer.start();
 
-    app.use('/graphql', expressMiddleware(createApolloServer,{
+    app.use('/graphql', expressMiddleware(createApolloServer, {
         // @ts-ignore
         context: ({ req, res }) => {
-            // console.log(req?.headers?.cookie?.split('=')[1] );
-            const token = req.headers['authorization']?.split(' ')[1] || req?.headers?.cookie?.split('=')[1] ;
+            const token = req.headers['authorization']?.split(' ')[1] || req?.headers?.cookie?.split('=')[1];
             if (token) {
-                // console.log("Token:", token);
                 const decoded = AccountService.decodeJWT({ token });
-                // console.log("Decoded:", decoded);
-                return { user: decoded, res }; 
+                return { user: decoded, res };
             }
-            return { res }; 
+            return { res };
         }
     }));
 
@@ -63,6 +53,8 @@ async function init() {
         console.log(`Server running on port ${PORT}`);
     });
 
+    return app;  
 }
 
-init();
+const app = init();  
+export default app;

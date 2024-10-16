@@ -1,2 +1,2 @@
-import index from '../src/index';
-export default index;
+import app from '../src/index'
+export default app
