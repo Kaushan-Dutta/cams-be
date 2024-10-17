@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "dev": "tsc-watch --onSuccess \"npm start\"",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma migrate dev"
   },
   "builds": [
     {
@@ -14,7 +14,7 @@
       "use": "@vercel/node",
       "config": {
         "installCommand": "npm install",
-        "buildCommand": "npm run build && prisma generate"
+        "buildCommand": "npm run build && npx prisma migrate dev"
       }
     }
   ],

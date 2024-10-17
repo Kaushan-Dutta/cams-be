@@ -8,7 +8,6 @@ import { GraphQLJSON } from 'graphql-type-json';
 const account_query = `#graphql
         accountLogin(email: String!, password: String!): Response,
         accountLogout: Response,
-
         getAccount: Response
 `
 

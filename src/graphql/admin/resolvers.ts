@@ -24,12 +24,15 @@ const queries = {
     getEvents: async (parent: any, args: any, context: any) => {
         console.log("Args:Outside GetEvents", args);
         try {
-            let cachedEvent = await redisclient.get("events");
+            const caseKey = `events:${context.user.id}`;
+            console.log("Case Key:", caseKey);
+
+            let cachedEvent = await redisclient.get(caseKey);
             if (cachedEvent) {
                 return new ApiResponse(200, "Events from cached", JSON.parse(cachedEvent));
             }
             const events = await AdminService.getEvents();
-            await redisclient.set("events", JSON.stringify(events),{"EX": 600});
+            await redisclient.set(caseKey, JSON.stringify(events),{"EX": 600});
 
             return new ApiResponse(200, "Events", events);
         }
