@@ -29,10 +29,11 @@ class AgencyService {
         })
     }
 
-    public static updateCaseStatus(payload) {
+    public static  updateCaseStatus(payload) {
         console.log("Args:Inside UpdateCaseStatus", payload);
         const { id, status } = payload
         console.log(id, status);
+        
         return db.caseApplication.update({
             where: { id: id },
             data: { status: status },

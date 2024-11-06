@@ -51,6 +51,8 @@ model Account {
   password         String
   name             String?
   phone            String?
+  publicId         String?           @unique
+  privateId        String?           @unique
   role             Role              @default(USER)
   location         Location?
   NotificationRecv Notification[]    @relation("ReceivedNotifications")
@@ -118,6 +120,7 @@ model Evidence {
 
 model CaseApplication {
   id        String            @id @default(uuid())
+  caseId    String?           @unique
   type      CaseType
   name      String
   phone     String
@@ -157,7 +160,7 @@ model Alert {
 }
 
 model Event {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   location    String
   date        String
@@ -168,8 +171,9 @@ model Event {
   @@map("events")
 }
 
-model UserIdentityCard {
+model DigitalCard {
   id       String            @id @default(uuid())
+  cardId   String            @unique
   name     String
   phone    String
   pincode  String

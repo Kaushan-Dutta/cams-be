@@ -3,11 +3,9 @@ import { expressMiddleware } from '@apollo/server/express4';
 import http from 'http';
 import { createApolloServer } from './graphql';
 import AccountService from './services/account';
-import * as dotenv from 'dotenv';
 import cors from "cors";
 import redisclient from './lib/redis.config';
-
-dotenv.config();
+import config from './lib/node.config';
 
 export type InputProps = {
     parent: any,
@@ -29,7 +27,7 @@ async function init() {
     });
 
     await redisclient.connect();
-    console.log('Redis running on port 6739');
+    console.log('Redis: 6739');
 
     await createApolloServer.start();
 
@@ -47,7 +45,7 @@ async function init() {
 
     const httpServer = http.createServer(app);
 
-    const PORT = process.env.PORT || 5000;
+    const PORT = config.PORT || 5000;
 
     httpServer.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

@@ -1,6 +1,7 @@
 //@ts-nocheck
 import { db } from "../lib/db.config";
 import redisclient from '../lib/redis.config'
+import { caseIdGenerator } from "../utils";
 
 class UserService {
     public static userRegister(payload) {
@@ -16,8 +17,10 @@ class UserService {
     public static async caseRegister(payload) {
         console.log("Args:Inside CaseRegister", payload);
         const { type, name, phone, pincode, document, account } = payload
+        const caseId = await caseIdGenerator(pincode);
         return db.caseApplication.create({
             data: {
+                caseId: caseId,
                 type: type,
                 name: name,
                 phone: phone,
@@ -31,16 +34,16 @@ class UserService {
     public static async mapCaseAgency(payload) {
         console.log("Args:Inside MapCaseAgency", payload);
         const { caseId, agencyId } = payload
-        
+
         return db.caseAgencyMap.create({
             data: {
                 agencyId: agencyId,
                 caseId: caseId,
             }
         })
-        
 
-        
+
+
     }
     public static async updateCaseEvidence(payload) {
         console.log("Args:Inside UpdateCaseEvidence", payload);
@@ -58,10 +61,10 @@ class UserService {
 
     public static getCases(payload) {
         console.log("Args:Inside the getCases", payload);
-        
+
         return db.caseApplication.findMany({
             where: {
-                accountId:payload.accounId
+                accountId: payload.accounId
             }
         })
     }

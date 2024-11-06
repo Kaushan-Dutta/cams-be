@@ -36,12 +36,14 @@ const queries = {
     getEvents: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Args:Outside GetEvents", args);
         try {
-            let cachedEvent = yield redis_config_1.default.get("events");
+            const caseKey = `events:${context.user.id}`;
+            console.log("Case Key:", caseKey);
+            let cachedEvent = yield redis_config_1.default.get(caseKey);
             if (cachedEvent) {
                 return new ApiResponse_1.default(200, "Events from cached", JSON.parse(cachedEvent));
             }
             const events = yield admin_1.default.getEvents();
-            yield redis_config_1.default.set("events", JSON.stringify(events), { "EX": 600 });
+            yield redis_config_1.default.set(caseKey, JSON.stringify(events), { "EX": 600 });
             return new ApiResponse_1.default(200, "Events", events);
         }
         catch (err) {

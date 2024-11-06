@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 //@ts-nocheck
 const db_config_1 = require("../lib/db.config");
+const utils_1 = require("../utils");
 class UserService {
     static userRegister(payload) {
         console.log("Args:Inside UserRegister", payload);
@@ -26,8 +27,10 @@ class UserService {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Args:Inside CaseRegister", payload);
             const { type, name, phone, pincode, document, account } = payload;
+            const caseId = yield (0, utils_1.caseIdGenerator)(pincode);
             return db_config_1.db.caseApplication.create({
                 data: {
+                    caseId: caseId,
                     type: type,
                     name: name,
                     phone: phone,
