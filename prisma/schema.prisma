@@ -120,7 +120,7 @@ model Evidence {
 
 model CaseApplication {
   id        String            @id @default(uuid())
-  caseId    String           @unique
+  caseNo    String            @unique
   type      CaseType
   name      String
   phone     String

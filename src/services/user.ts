@@ -17,10 +17,10 @@ class UserService {
     public static async caseRegister(payload) {
         console.log("Args:Inside CaseRegister", payload);
         const { type, name, phone, pincode, document, account } = payload
-        const caseId = await caseIdGenerator(pincode);
+        const caseNo = await caseIdGenerator(pincode);
         return db.caseApplication.create({
             data: {
-                caseId: caseId,
+                caseNo: caseNo,
                 type: type,
                 name: name,
                 phone: phone,

@@ -27,10 +27,10 @@ class UserService {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Args:Inside CaseRegister", payload);
             const { type, name, phone, pincode, document, account } = payload;
-            const caseId = yield (0, utils_1.caseIdGenerator)(pincode);
+            const caseNo = yield (0, utils_1.caseIdGenerator)(pincode);
             return db_config_1.db.caseApplication.create({
                 data: {
-                    caseId: caseId,
+                    caseNo: caseNo,
                     type: type,
                     name: name,
                     phone: phone,
