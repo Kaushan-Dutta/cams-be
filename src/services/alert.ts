@@ -1,4 +1,5 @@
 import { db } from "../lib/db.config";
+import AgencyService from "./agency";
 class AlertService {
     public static getAlerts(payload:any) {
         const { agencyId } = payload;
@@ -11,24 +12,8 @@ class AlertService {
     }
     public static async postAlert(payload:any) {
         const { latitude, longitude } = payload
-        console.log("Args:Inside PostAlert",payload);
-        const agencies = await db.location.findMany();
+        const agencyId=await AgencyService.getNearestAgency({latitude,longitude});
 
-        let agencyId = null;
-        let minDistance = 100000;
-        
-        agencies.forEach(agency => {
-            console.log(agency)
-            const distance = Math.abs(latitude - agency.latitude) + Math.abs(longitude - agency.longitude);
-            if (distance < minDistance) {
-                minDistance = distance;
-                agencyId = agency.accountId;
-            }
-        })
-        console.log(agencyId)
-        if(agencyId === null) {
-            throw new Error("No agency found")
-        }
         return await db.alert.create({
             data: {
                 latitude: parseFloat(latitude),
@@ -37,5 +22,14 @@ class AlertService {
             }
         })
     }
+    public static updateAlert(payload:any) {
+        const { id, status } = payload
+        console.log("Args:Inside UpdateAlert", payload);
+        return db.alert.update({
+            where: { id: id },
+            data: { status: status },
+        })
+    }
+
 }
 export default AlertService

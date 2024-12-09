@@ -19,7 +19,9 @@ const graphql_1 = require("./graphql");
 const account_1 = __importDefault(require("./services/account"));
 const cors_1 = __importDefault(require("cors"));
 const redis_config_1 = __importDefault(require("./lib/redis.config"));
-const node_config_1 = __importDefault(require("./lib/node.config"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
@@ -28,17 +30,18 @@ function init() {
             origin: true,
             credentials: true
         }));
+        app.use((0, cookie_parser_1.default)());
         app.get('/', (req, res) => {
             res.status(200).json({ message: "Server up and running" });
         });
         yield redis_config_1.default.connect();
-        console.log('Redis: 6739');
+        console.log(process.env.REDIS_URL);
         yield graphql_1.createApolloServer.start();
         app.use('/graphql', (0, express4_1.expressMiddleware)(graphql_1.createApolloServer, {
             // @ts-ignore
             context: ({ req, res }) => {
-                var _a, _b, _c;
-                const token = ((_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) || ((_c = (_b = req === null || req === void 0 ? void 0 : req.headers) === null || _b === void 0 ? void 0 : _b.cookie) === null || _c === void 0 ? void 0 : _c.split('=')[1]);
+                var _a, _b;
+                const token = ((_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) || ((_b = req.cookies) === null || _b === void 0 ? void 0 : _b.jwtToken);
                 if (token) {
                     const decoded = account_1.default.decodeJWT({ token });
                     return { user: decoded, res };
@@ -47,7 +50,7 @@ function init() {
             }
         }));
         const httpServer = http_1.default.createServer(app);
-        const PORT = node_config_1.default.PORT || 5000;
+        const PORT = process.env.PORT;
         httpServer.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });

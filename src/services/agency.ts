@@ -1,10 +1,9 @@
 //@ts-nocheck
 import { db } from "../lib/db.config";
-
 class AgencyService {
     public static agencyRegister(payload) {
-        const { email, name, phone, document, pincode, latitude, longitude, sate } = payload
         console.log("Args:Inside AgencyRegister", payload);
+
         return db.agencyApplication.create({
             data: {
                 ...payload
@@ -12,23 +11,41 @@ class AgencyService {
         })
 
     }
-    public static getAgencyFromPincode(payload) {
-        const { pincode } = payload
-        console.log("Args:Inside GetAgencyFromPincode", payload);
-        return db.location.findFirst({
-            where: { pincode: pincode },
+    
+    public static async getNearestAgency(payload) {
+        const { latitude, longitude } = payload
+        console.log("Args:Inside PostAlert",payload);
+        const agencies = await db.account.findMany({
+            where: {
+                role: "AGENCY"
+            },
+            select: {
+                id: true,
+                location: true
+            }
         });
-    }
 
-    public static updateAlert(payload) {
-        const { id, status } = payload
-        console.log("Args:Inside UpdateAlert", payload);
-        return db.alert.update({
-            where: { id: id },
-            data: { status: status },
+        let agencyId = null;
+        let minDistance = 100000;
+        
+        agencies.forEach(agency => {
+            if(!agency.location) {
+                return;
+            }
+            // console.log(agency.location?.latitude)
+            const distance = Math.abs(latitude - agency.location.latitude) + Math.abs(longitude - agency.location.longitude);
+            if (distance < minDistance) {
+                minDistance = distance;
+                agencyId = agency.id;
+            }
         })
+        console.log(agencyId)
+        if(agencyId === null) {
+            throw new Error("No agency found")
+        }
+        return agencyId
     }
-
+    
     public static  updateCaseStatus(payload) {
         console.log("Args:Inside UpdateCaseStatus", payload);
         const { id, status } = payload
@@ -46,8 +63,27 @@ class AgencyService {
             where: {
                 agencyId: agencyId,
             },
-            select: {
-                case: true
+
+            include: {
+                case:{
+                    
+                    select:{
+                        id:true,
+                        type:true,
+                        createdAt:true,
+                        title:true,
+                        status:true,
+                        reporter:true,
+                        location:{
+                            select:{
+                                pincode:true,
+                                state:true,
+                                country:true,
+                                district:true
+                            }
+                        }
+                    }
+                }
             }
         })
 
@@ -56,20 +92,28 @@ class AgencyService {
         console.log("Args:Inside GetAllCases");
         const cases=await db.caseAgencyMap.findMany({
             
-            select: {
+            include: {
                 case:{
+                    
                     select:{
                         id:true,
                         type:true,
                         createdAt:true,
-                        name:true,
-                        pincode:true
+                        title:true,
+                        status:true,
+                        reporter:true,
+                        location:{
+                            select:{
+                                pincode:true,
+                                state:true,
+                                country:true,
+                                district:true
+                            }
+                        }
                     }
-                },
-                agency:true
+                }
             }
         })
-        console.log("Cases",cases);
         return cases
 
     }
@@ -96,6 +140,12 @@ class AgencyService {
         })
 
     }
+    public static sendCaseReq(payload){
+        console.log("Args:Inside SendCaseReq", payload);
+        const {requestMessage}=payload;
+        return {message:"Case Request Sent"}       
+    }
+    
     public static updateCaseEvidence(payload) {
         return { message: "Case Evidence Updated" }
     }

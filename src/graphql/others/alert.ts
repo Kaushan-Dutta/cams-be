@@ -8,6 +8,7 @@ const alert_query = `#graphql
 `
 const alert_mutation = `#graphql
     postAlert(latitude:String,longitude:String): Response
+    updateAlert(id:ID,status:String): Response,
 `
 const queries = {
 
@@ -17,7 +18,7 @@ const queries = {
             if(context.user.role != 'AGENCY') {
                 throw new ApiError(401, "Unauthorized")
             }
-            const alerts = await AlertService.getAlerts({ agencyId: context.id });
+            const alerts = await AlertService.getAlerts({ agencyId: context.user.id });
             return new ApiResponse(200, "Alerts Fetched", alerts);
         }
         catch (err: any) {
@@ -37,7 +38,19 @@ const mutations = {
         catch (err: any) {
             throw new ApiError(500, err.message, {}, false);
         }
-    }
+    },
+    updateAlert: async (parent: any, args: any, context: any) => {
+        console.log("Args:Outside UpdateAlert", args);
+        try {
+            const alert = await AlertService.updateAlert(args);
+
+            return new ApiResponse(200, "Alert Updated", alert);
+        }
+        catch (err: any) {
+            throw new ApiError(500, err.message, {}, false);
+        }
+    },
+
 }
 export const Alert = {
     queries: alert_query,

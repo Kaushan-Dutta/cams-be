@@ -3,7 +3,7 @@ import { db } from '../lib/db.config'
 import redisclient from '../lib/redis.config'
 
 const jwt = require('jsonwebtoken')
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET 
 
 class AccountService {
     public static async accountLogin(payload) {
@@ -26,11 +26,12 @@ class AccountService {
     }
     public static decodeJWT(payload) {
         const { token } = payload
-        // console.log(token);
+        console.log(token);
         return jwt.verify(token, JWT_SECRET)
     }
     private static generateJWT(payload) {
         const { id, email, role } = payload
+        console.log(JWT_SECRET,payload)
         return jwt.sign({ id, email, role }, JWT_SECRET, { expiresIn: '5d' })
     }
     public static updateAccount(payload) {
@@ -46,6 +47,18 @@ class AccountService {
         })
 
     }
+    // public static getPublicId(payload){
+    //     const { id } = payload
+    //     console.log("Args:Inside GetPublicId", payload);
+    //     return db.account.findUnique({
+    //         where: {
+    //             id: id
+    //         },
+    //         select:{
+    //             publicId:true
+    //         }
+    //     })
+    // }
 
 }
 export default AccountService

@@ -5,7 +5,10 @@ import { createApolloServer } from './graphql';
 import AccountService from './services/account';
 import cors from "cors";
 import redisclient from './lib/redis.config';
-import config from './lib/node.config';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export type InputProps = {
     parent: any,
@@ -21,20 +24,20 @@ async function init() {
         origin: true,
         credentials: true
     }));
-
+    app.use(cookieParser())
     app.get('/', (req, res) => {
         res.status(200).json({ message: "Server up and running" });
     });
 
     await redisclient.connect();
-    console.log('Redis: 6739');
+    console.log(process.env.REDIS_URL);
 
     await createApolloServer.start();
 
     app.use('/graphql', expressMiddleware(createApolloServer, {
         // @ts-ignore
         context: ({ req, res }) => {
-            const token = req.headers['authorization']?.split(' ')[1] || req?.headers?.cookie?.split('=')[1];
+            const token = req.headers['authorization']?.split(' ')[1] || req.cookies?.jwtToken;
             if (token) {
                 const decoded = AccountService.decodeJWT({ token });
                 return { user: decoded, res };
@@ -45,7 +48,7 @@ async function init() {
 
     const httpServer = http.createServer(app);
 
-    const PORT = config.PORT || 5000;
+    const PORT = process.env.PORT;
 
     httpServer.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

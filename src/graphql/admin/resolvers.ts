@@ -4,7 +4,9 @@ import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import { ResolverProps } from "../../types";
 import Transaction from "../../managers/TransactionManager";
-import redisclient from '../../lib/redis.config'
+// import TransactionService from "../../services/transaction";
+import AgencyService from "../../services/agency";
+import { ApplicationForm } from "../../types/agency";
 
 const queries = {
     getAgencyForms: async (parent: any, args: any, context: any) => {
@@ -20,25 +22,6 @@ const queries = {
         } catch (err: any) {
             throw new ApiError(500, err.message, {}, false);
         }
-    },
-    getEvents: async (parent: any, args: any, context: any) => {
-        console.log("Args:Outside GetEvents", args);
-        try {
-            const caseKey = `events:${context.user.id}`;
-            console.log("Case Key:", caseKey);
-
-            let cachedEvent = await redisclient.get(caseKey);
-            if (cachedEvent) {
-                return new ApiResponse(200, "Events from cached", JSON.parse(cachedEvent));
-            }
-            const events = await AdminService.getEvents();
-            await redisclient.set(caseKey, JSON.stringify(events),{"EX": 600});
-
-            return new ApiResponse(200, "Events", events);
-        }
-        catch (err: any) {
-            throw new ApiError(500, err.message, {}, false);
-        }
     }
 }
 const mutations = {
@@ -49,38 +32,29 @@ const mutations = {
                 throw new ApiError(401, "Unauthorized")
 
             }
+            const getForm:ApplicationForm | null = await AdminService.ifFormExists(args);
+            if (!getForm) {
+                throw new ApiError(404, "Form not found");
+            }
+            if (getForm.status === "APPROVED") {
+                throw new ApiError(405, "Form already approved");
+            }
+            const updateStatus:ApplicationForm | null=await AdminService.updateAgencyFormStatus(args);
+            if(updateStatus.status!="APPROVED"){
+                return new ApiResponse(200, "Form Rejected", updateStatus)
+            }
+            const createAcc = await AdminService.createAgencyAcccount(updateStatus)
+            if (!createAcc) {
+                throw new ApiError(500, "Error creating account")
+            }
 
-            return await Transaction.startTransaction(async () => {
-                return await AdminService.updateAgencyFormStatus(args);
-            })
+            return new ApiResponse(200, "Form Status Updated", updateStatus);
 
         }
         catch (err: any) {
             throw new ApiError(500, err.message, {}, false);
         }
     },
-    createEvent: async (parent: any, args: any, context: any) => {
-        console.log("Args:Outside CreateEvent", args);
-        try {
-            if (context.user.role != 'ADMIN') {
-                throw new ApiError(401, "Unauthorized")
-            }
-            return await Transaction.startTransaction(async () => {
-                const event = await AdminService.createEvent(args.data);
-                const notification = await NotificationService.createNotification({ messageType: "EVENT", data: args.data, type: "BROADCAST" });
-                if (notification) {
-                    return new ApiResponse(201, "Event Created", { event, notification });
-                }
-                else {
-                    throw new ApiError(404, "Event Not Found", {}, false);
-                }
-            })
-        }
-
-
-        catch (err: any) {
-            throw new ApiError(500, err.message, {}, false);
-        }
-    }
+    
 }
 export const resolvers = { queries, mutations }

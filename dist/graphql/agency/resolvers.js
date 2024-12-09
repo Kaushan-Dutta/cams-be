@@ -17,18 +17,20 @@ const agency_1 = __importDefault(require("../../services/agency"));
 const notification_1 = __importDefault(require("../../services/notification"));
 const ApiError_1 = __importDefault(require("../../utils/ApiError"));
 const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
-const TransactionManager_1 = __importDefault(require("../../managers/TransactionManager"));
+// import TransactionService from "../../services/transaction";
+const location_1 = __importDefault(require("../../services/location"));
+const case_1 = __importDefault(require("../../services/case"));
 const queries = {
     getAgencyCases: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Args:Outside GetAgencyCases");
         try {
             // console.log("Context",context.user.role);   
             const cases = yield agency_1.default.getAgencyCases({ agencyId: context.user.id });
-            const casesData = cases.map((item) => {
-                return item.case;
-            });
-            console.log("Cases", casesData);
-            return new ApiResponse_1.default(200, "Agency Cases", casesData);
+            // const casesData = cases.map((item) => {
+            //     return item.case
+            // })
+            console.log("Cases", cases);
+            return new ApiResponse_1.default(200, "Agency Cases", cases);
         }
         catch (err) {
             throw new ApiError_1.default(500, err.message, {}, false);
@@ -57,18 +59,14 @@ const mutations = {
     agencyRegister: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Args:Outside AgencyRegister", args);
         try {
-            const register = yield agency_1.default.agencyRegister(args.data);
+            const latitude = Math.round(args.data.latitude * 1000) / 1000;
+            const longitude = Math.round(args.data.longitude * 1000) / 1000;
+            const location = yield location_1.default.addLocationDetails(latitude, longitude);
+            if (!location) {
+                throw new ApiError_1.default(404, "Location not regsiterded", {}, false);
+            }
+            const register = yield agency_1.default.agencyRegister(Object.assign({ locationId: location.id }, args.data));
             return new ApiResponse_1.default(201, "Agency Registered", register);
-        }
-        catch (err) {
-            throw new ApiError_1.default(500, err.message, {}, false);
-        }
-    }),
-    updateAlert: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Args:Outside UpdateAlert", args);
-        try {
-            const alert = yield agency_1.default.updateAlert(args);
-            return new ApiResponse_1.default(200, "Alert Updated", alert);
         }
         catch (err) {
             throw new ApiError_1.default(500, err.message, {}, false);
@@ -82,16 +80,30 @@ const mutations = {
             if (!check_case_agency) {
                 return new ApiError_1.default(404, "No case in your control");
             }
-            return yield TransactionManager_1.default.startTransaction(() => __awaiter(void 0, void 0, void 0, function* () {
-                const update = yield agency_1.default.updateCaseStatus(args);
-                yield notification_1.default.createNotification({
-                    messageType: args.status == "APPROVED" ? 'CASE_ACCEPT' : 'CASE_REJECT', data: {
-                        name: update.name,
-                        agency_name: check_case_agency.agency.name
-                    }, type: "PERSONAL", receiverId: update.accountId
-                });
-                return new ApiResponse_1.default(200, "Case Updated", update);
-            }));
+            const update = yield agency_1.default.updateCaseStatus(args);
+            // const blockTransaction = await TransactionService.createCase({ agencyId: context.user.id, caseId: args.id, userId: update.accountId });
+            // console.log("Block Transaction", blockTransaction);
+            const complainerId = yield case_1.default.getComplainerId({ caseId: args.id });
+            yield notification_1.default.createNotification({
+                messageType: args.status == "APPROVED" ? 'CASE_ACCEPT' : 'CASE_REJECT', data: {
+                    name: update.title,
+                    agency_name: check_case_agency.agency.name
+                }, type: "PERSONAL", receiverId: complainerId
+            });
+            return new ApiResponse_1.default(200, "Case Updated", update);
+        }
+        catch (err) {
+            throw new ApiError_1.default(500, err.message, {}, false);
+        }
+    }),
+    sendCaseReq: (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("Args:Outside SendCaseReq", args);
+        try {
+            if (context.user.role != "AGENCY") {
+                throw new ApiError_1.default(401, 'Unauthorized');
+            }
+            const sendCase = yield agency_1.default.sendCaseReq(args);
+            return new ApiResponse_1.default(200, "Request Sent");
         }
         catch (err) {
             throw new ApiError_1.default(500, err.message, {}, false);
@@ -99,3 +111,4 @@ const mutations = {
     })
 };
 exports.resolvers = { queries, mutations };
+// (caseId:String!,requestMessage:String!): Response,

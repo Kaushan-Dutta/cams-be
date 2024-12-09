@@ -4,6 +4,7 @@ import {typedefs as caseTypedefs} from './caseType';
 import {typedefs as accountTypedefs} from './accountType';
 import {typedefs as alertTypedefs} from './alertType';
 import {typedefs as agencyTypedefs} from './agencyType';
+import {typedefs as digitalCardTypedefs} from './digitalCardType';
 
 export const typedefs = [
     eventTypedefs,
@@ -11,5 +12,6 @@ export const typedefs = [
     caseTypedefs,
     accountTypedefs,
     alertTypedefs,
-    agencyTypedefs
+    agencyTypedefs,
+    digitalCardTypedefs
 ]

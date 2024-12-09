@@ -36,59 +36,86 @@ enum CaseStatus {
   REJECTED
 }
 
+enum LocationType {
+  AGENCY
+  CASE
+}
+
 enum CaseType {
+  CRIMINAL
+  CIVIL
+  TRAFFIC
   CYBER
+  ECONOMIC
+  FAMILY
+  ENVIORMENTAL
+  HEALTH
+  INTELLECTUAL
   MISSING
   KIDNAPPING
   TRAFFICKING
-  ACCIDENT
   OTHER
 }
 
+enum CaseParticipantType {
+  WITNESS
+  SUSPECT
+  COMPLAINANT
+  ACCUSED
+  OTHER
+}
+
+//CX{random(8)}
 model Account {
-  id               String            @id @default(uuid())
-  email            String            @unique
-  password         String
-  name             String?
-  phone            String?
-  publicId         String?           @unique
-  privateId        String?           @unique
-  role             Role              @default(USER)
-  location         Location?
-  NotificationRecv Notification[]    @relation("ReceivedNotifications")
-  NotificationSent Notification[]    @relation("SentNotifications")
+  id         String    @id
+  email      String    @unique
+  password   String
+  name       String?
+  phone      String?
+  role       Role      @default(USER)
+  profile    String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  locationId String?
+
+  NotificationRecv Notification[]     @relation("ReceivedNotifications")
+  NotificationSent Notification[]     @relation("SentNotifications")
   alert            Alert[]
-  cases            CaseApplication[]
   caseAgencyMap    CaseAgencyMap[]
+  DigitalCard      DigitalCard[]
+  CaseParticipants CaseParticipants[]
 
   @@map("accounts")
 }
 
 model Location {
   id        String  @id @default(uuid())
-  longitude Float
-  latitude  Float
-  pincode   String  @unique
-  state     String
-  city      String
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId String  @unique
+  longitude Float   @unique
+  latitude  Float   @unique
+  pincode   String?
+  state     String?
+  district  String?
+  country   String?
+
+  AgencyApplication AgencyApplication[]
+  Account           Account[]
+  CaseApplication   CaseApplication[]
+  Event             Event[]
+  DigitalCard       DigitalCard[]
 
   @@map("locations")
 }
 
 model AgencyApplication {
-  id        String            @id @default(uuid())
-  email     String
-  name      String
-  phone     String
-  pincode   String            @unique
-  document  String
-  longitude Float
-  latitude  Float
-  state     String
-  city      String
-  status    ApplicationStatus @default(PENDING)
+  id       String @id @default(uuid())
+  email    String
+  name     String
+  phone    String
+  document String
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String
+
+  status ApplicationStatus @default(PENDING)
 
   @@map("agency_applications")
 }
@@ -110,31 +137,65 @@ model Notification {
 model Evidence {
   id          String          @id @default(uuid())
   url         String?
-  file        String?
-  description String
+  content     String?
+  description String?
   case        CaseApplication @relation(fields: [caseId], references: [id])
   caseId      String
+
+  txHash String?
 
   @@map("evidences")
 }
 
-model CaseApplication {
-  id        String            @id @default(uuid())
-  caseNo    String            @unique
-  type      CaseType
-  name      String
-  phone     String
-  pincode   String
-  evidence  Evidence[]
-  document  String?
-  status    ApplicationStatus @default(PENDING)
-  account   Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId String
-  createdAt DateTime          @default(now())
+model CaseParticipants {
+  id        String              @id @default(uuid())
+  type      CaseParticipantType
+  name      String?
+  phone     String?
+  address   String?
+  account   Account?            @relation(fields: [accountId], references: [id])
+  accountId String?
+  case      CaseApplication     @relation(fields: [caseId], references: [id])
+  caseId    String
+  details   String?
 
+  txHash String?
+
+  @@map("case_participants")
+}
+
+//CS{PINCODE}{random{2}}
+model CaseApplication {
+  id             String   @id
+  reporter       Role     @default(USER)
+  type           CaseType
+  title          String
+  description    String
+  dateOfIncident DateTime
+
+  status ApplicationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  location      Location?       @relation(fields: [locationId], references: [id])
+  locationId    String?
   caseAgencyMap CaseAgencyMap[]
 
+  evidence     Evidence[]
+  participants CaseParticipants[]
+  caseFile     CaseFile[]
+
   @@map("cases")
+}
+
+model CaseFile {
+  id     String          @id @default(uuid())
+  case   CaseApplication @relation(fields: [caseId], references: [id])
+  caseId String
+  url    String
+  txHash String?
+
+  @@map("case_files")
 }
 
 model CaseAgencyMap {
@@ -151,7 +212,7 @@ model Alert {
   id        String            @id @default(uuid())
   latitude  Float
   longitude Float
-  agency    Account?          @relation(fields: [agencyId], references: [id])
+  agency    Account           @relation(fields: [agencyId], references: [id])
   agencyId  String
   status    ApplicationStatus @default(PENDING)
   createdAt DateTime          @default(now())
@@ -162,24 +223,42 @@ model Alert {
 model Event {
   id          String  @id @default(uuid())
   name        String
-  location    String
   date        String
   description String
-  startTime   String?
-  endTime     String?
+  startTime   String
+  endTime     String
+  banner      String?
+  contact     String
+  venue       String
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String
 
   @@map("events")
 }
 
 model DigitalCard {
-  id       String            @id @default(uuid())
-  cardId   String            @unique
-  name     String
-  phone    String
-  pincode  String
-  document String
-  profile  String
-  status   ApplicationStatus @default(PENDING)
+  id         String   @id
+  account    Account  @relation(fields: [id], references: [id])
+  name       String
+  phone      String
+  document   String
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String
+
+  txHash String?
 
   @@map("user_identity_cards")
 }
+
+model RequestCase {
+  id             String  @id @default(uuid())
+  requestMessage String
+  txHash         String?
+
+  @@map("request_cases")
+}
+
+//  DATABASE_URL=postgresql://neondb_owner:mSLTAaK82Whl@ep-wild-feather-a1qukgsw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+//  JWT_SECRET=jwtauth_secret_dev
+//  REDIS_URL=redis://default:6jf1HzQtLbZqYSF1KSgERScALR2bxciE@redis-16424.c8.us-east-1-4.ec2.redns.redis-cloud.com:16424

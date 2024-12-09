@@ -7,6 +7,7 @@ import { User } from './users';
 import { Alert } from './others/alert';
 import { Case } from './others/case';
 import { Event } from './others/event';
+import { DigitalCard } from './others/digitalCard';
 
 import {typedefs} from './typedefs'
 
@@ -22,6 +23,7 @@ const createApolloServer = new ApolloServer({
             ${User.queries}
             ${Case.queries}
             ${Event.queries}
+            ${DigitalCard.queries}
         }
         type Mutation {
             ${Agency.mutations}
@@ -30,6 +32,8 @@ const createApolloServer = new ApolloServer({
             ${Alert.mutations}
             ${Case.mutations}
             ${Account.mutations}
+            ${DigitalCard.mutations}
+            ${Event.mutations}
         }
     `,
     resolvers: {
@@ -41,7 +45,8 @@ const createApolloServer = new ApolloServer({
             ...Notification.resolvers.queries,
             ...Alert.resolvers.queries,
             ...Case.resolvers.queries,
-            ...Event.resolvers.queries
+            ...Event.resolvers.queries,
+            ...DigitalCard.resolvers.queries
         },
         Mutation: {
             ...Agency.resolvers.mutations,
@@ -49,7 +54,9 @@ const createApolloServer = new ApolloServer({
             ...User.resolvers.mutations,
             ...Alert.resolvers.mutations,
             ...Case.resolvers.mutations,
-            ...Account.resolvers.mutations
+            ...Account.resolvers.mutations,
+            ...DigitalCard.resolvers.mutations,
+            ...Event.resolvers.mutations
         }
     }
 });
