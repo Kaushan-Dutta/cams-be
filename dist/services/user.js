@@ -18,9 +18,30 @@ class UserService {
     }
     static getCases(payload) {
         console.log("Args:Inside the getCases", payload);
-        return db_config_1.db.caseApplication.findMany({
+        return db_config_1.db.caseParticipant.findMany({
             where: {
+                type: 'COMPLAINANT',
                 accountId: payload.accounId
+            },
+            select: {
+                case: {
+                    select: {
+                        id: true,
+                        type: true,
+                        createdAt: true,
+                        title: true,
+                        status: true,
+                        reporter: true,
+                        location: {
+                            select: {
+                                pincode: true,
+                                state: true,
+                                country: true,
+                                district: true
+                            }
+                        }
+                    }
+                }
             }
         });
     }

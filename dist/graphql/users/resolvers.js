@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const user_1 = __importDefault(require("../../services/user"));
-const redis_config_1 = __importDefault(require("../../lib/redis.config"));
 const ApiError_1 = __importDefault(require("../../utils/ApiError"));
 const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
 // import TransactionService from "../../services/transaction";
@@ -25,15 +24,15 @@ const queries = {
             if (context.user.role != "USER") {
                 throw new ApiError_1.default(401, "Unauthorized", {}, false);
             }
-            const caseKey = `cases:${context.user.id}`;
-            console.log("Case Key:", caseKey);
-            let cachedCases = yield redis_config_1.default.get(caseKey);
-            if (cachedCases) {
-                console.log("Returning cached cases");
-                return new ApiResponse_1.default(200, "User Cases from cached", JSON.parse(cachedCases));
-            }
+            // const caseKey = `cases:${context.user.id}`;
+            // console.log("Case Key:", caseKey);
+            // let cachedCases = await redisclient.get(caseKey);
+            // if (cachedCases) {
+            //     console.log("Returning cached cases");
+            //     return new ApiResponse(200, "User Cases from cached", JSON.parse(cachedCases));
+            // }
             const getCases = yield user_1.default.getCases({ accounId: context.user.id });
-            yield redis_config_1.default.set(caseKey, JSON.stringify(getCases), { "EX": 600 });
+            // await redisclient.set(caseKey, JSON.stringify(getCases), { "EX": 600 });
             return new ApiResponse_1.default(200, "User Cases", getCases);
         }
         catch (err) {
