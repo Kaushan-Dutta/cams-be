@@ -72,6 +72,9 @@ const mutations = {
     updateAccount: async (parent: any, args: any, context: any) => {
         console.log("Args:Outside in updation", args);
         try {
+            if(context.user.role=='AGENCY' && (args.name || args.phone)){
+                throw new ApiError(403, "Agency can't update name or phone", {}, false);
+            }
             const update = await AccountService.updateAccount({ ...args, id: context.user.id });
             console.log("The updateion", update);
             return new ApiResponse(200, "Account Updated", update)

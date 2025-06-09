@@ -57,8 +57,8 @@ const mutations = {
             if (context.user.role != 'ADMIN') {
                 throw new ApiError(401, "Unauthorized")
             }
-            const lat = Math.round(args.data.latitude * 1000) / 1000;
-            const long = Math.round(args.data.longitude * 1000) / 1000;
+            const lat = Math.round(args.data.latitude * 100) / 100;
+            const long = Math.round(args.data.longitude * 100) / 100;
             
             const location = await Locationservice.addLocationDetails(lat, long);
             if (!location) {

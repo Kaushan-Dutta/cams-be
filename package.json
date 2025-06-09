@@ -28,14 +28,14 @@
     "@types/node": "^20.14.11",
     "cross-env": "^7.0.3",
     "env-cmd": "^10.1.0",
-    "prisma": "^5.17.0",
+    "prisma": "^6.0.1",
     "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.5.3"
   },
   "dependencies": {
     "@apollo/server": "^4.10.4",
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^6.0.1",
     "@types/cookie-parser": "^1.4.7",
     "axios": "^1.7.9",
     "cookie": "^1.0.1",

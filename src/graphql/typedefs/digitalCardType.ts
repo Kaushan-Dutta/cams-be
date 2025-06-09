@@ -2,9 +2,16 @@ export const typedefs = `#graphql
     input DigitalCardInput{
         name:String!,
         phone:String!,
-        address:String!,
         document:String,
-        latitude:Float,
-        longitude:Float,
+        latitude:String!,
+        longitude:String!,
+        gender:Gender!,
+        dob:String!,
+    },
+    enum Gender {
+        MALE
+        FEMALE
+        OTHER
     }
+
 `

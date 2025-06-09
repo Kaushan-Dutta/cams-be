@@ -5,7 +5,7 @@ class NotificationService {
     private static setMessage(messageType, data) {
         switch (messageType) {
             case "EVENT":
-                return `Event ${data.name} is going to happen on ${data.date} at ${data.location}`
+                return `Event ${data.name} is going to happen on ${data.date} at ${data.venue}`
             case "CASE_ACCEPT":
                 return `Your case ${data.name} have been accepted by ${data.agency_name} . You can now track the case`
             case "CASE_REJECT":

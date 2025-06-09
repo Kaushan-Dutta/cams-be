@@ -47,6 +47,22 @@ class AccountService {
         })
 
     }
+    public static async getAccount(payload) {
+        const { id } = payload
+        console.log("Args:Inside GetAccount", payload);
+        const account = await db.account.findUnique({
+            where: {
+                id: id
+            },
+            select: {
+                name: true,
+            }
+        })
+        if (!account) {
+            throw new Error("Account not found")
+        }
+        return account
+    }
     // public static getPublicId(payload){
     //     const { id } = payload
     //     console.log("Args:Inside GetPublicId", payload);

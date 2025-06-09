@@ -5,6 +5,9 @@ import CaseService from "../../services/case";
 // import TransactionService from "../../services/transaction";
 import Locationservice from "../../services/location";
 import AgencyService from "../../services/agency";
+import TransactionService from "../../services/transaction";
+import { Account } from "./account";
+import AccountService from "../../services/account";
 
 const case_query = `#graphql
     getCase(id:String!): Response
@@ -35,16 +38,29 @@ const queries = {
     getCaseHistory: async (parent: any, args: any, context: any) => {
         console.log("Args:Outside GetCaseHistory", args);
         try {
-            // const _case = await TransactionService.getCase({ caseId: args.caseId });
-            // console.log("Case", _case);
-            // if (_case) {
-            //     return new ApiResponse(200, "Get Case History", {
-            //         ..._case.case,
-            //         account: _case.case.account,
-            //         agency: _case.agency
-            //     });
-            // }
-            // return new ApiError(404, "Case not Found")
+            const _case = await TransactionService.getCase({ caseId: args.caseId });
+            console.log("Case", _case);
+            if(!_case){
+                return new ApiError(404, "Case not Found")
+            }
+            for(let i=0;i<_case.evidences.length;i++) {
+                _case.evidences[i].handler = await AccountService.getAccount({ id: _case.evidences[i].handlerId });
+                _case.evidences[i].tag="EVIDENCE";
+            }
+            for(let i=0;i<_case.caseParticipants.length;i++) {
+                _case.caseParticipants[i].handler = await AccountService.getAccount({ id: _case.caseParticipants[i].handlerId });
+                _case.caseParticipants[i].tag="PARTICIPANT";
+            }
+            // console.log("Case History", _case.evidences);
+
+            let caseHistory:any = [];
+            caseHistory.push(..._case.evidences);
+            // console.log("Case History", caseHistory);
+            caseHistory.push(..._case.caseParticipants);
+            caseHistory.sort((a:any,b:any) => {
+                return b.timestamp - a.timestamp;
+            })            
+            return new ApiResponse(200, "Get Case History", caseHistory);
         }
         catch (err: any) {
             throw new ApiError(500, err.message, {}, false);
@@ -54,7 +70,7 @@ const queries = {
 
 const mutations = {
     caseRegister: async (parent: any, args: any, context: any) => {
-        console.log("Args:Outside CaseRegister", args);
+        console.log("Args:Outside CaseRegister", args.data.evidence);
         try {
             const latitude = Math.round(args.data.latitude * 1000) / 1000;
             const longitude = Math.round(args.data.longitude * 1000) / 1000;
@@ -69,7 +85,7 @@ const mutations = {
             }
             else if (context.user.role === 'USER') {
 
-                args.data.participants.push({
+                args.data.participant.push({
                     type:"COMPLAINANT",
                     accountId:context.user.id,
                 });
@@ -82,13 +98,14 @@ const mutations = {
                 }
                 agencyId = nearestAgency;
             }
-
+            console.log(location, agencyId,args.data);
             const caseRegister = await CaseService.caseRegister({ locationId:location.id, reporter:context.user.role,...args.data });
             console.log("Case Register", caseRegister);
 
             if (!caseRegister) {
                 throw new ApiError(405, "Case Registration Failed", {});
             }
+            
             const mapCaseAgency = await CaseService.mapCaseAgency({ caseId: caseRegister.id, agencyId });
             console.log(mapCaseAgency)
 
@@ -100,8 +117,8 @@ const mutations = {
                 await CaseService.updateCaseEvidence({ caseId: caseRegister.id, evidence: args.data.evidence });
 
             }
-            if (args.data.participants.length > 0) {
-                await CaseService.updateCaseParticipant({ caseId: caseRegister.id, participant: args.data.participants });
+            if (args.data.participant.length > 0) {
+                await CaseService.updateCaseParticipant({ caseId: caseRegister.id, participant: args.data.participant });
             }
             return new ApiResponse(200, "Case Report sent to Agency", { caseRegister })
 
@@ -125,8 +142,14 @@ const mutations = {
             // if (!_caseUpdate) {
             //     return new ApiError(404, "Case not Found")
             // }
-            // const blockTransaction = await TransactionService.addEvidence({ caseId: args.caseId, accountId: context.user.id })
-            // console.log(blockTransaction);
+            if(args.evidences.length > 0) {
+                const {transactionHash}=await TransactionService.addEvidence({ caseId: args.caseId, accountId: context.user.id });
+                console.log("The transaction hash is", transactionHash);
+            }
+            if(args.participants.length > 0) {
+                const {transactionHash}=await TransactionService.addParticipant({ caseId: args.caseId, accountId: context.user.id });
+                console.log("The transaction hash is", transactionHash);
+            }
             return new ApiResponse(200, "Case Updated");
         }
         catch (err: any) {

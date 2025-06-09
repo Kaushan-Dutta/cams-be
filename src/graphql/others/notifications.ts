@@ -16,7 +16,7 @@ const queries = {
         catch (err: any) {
             throw new ApiError(500, err.message, {}, false);
         }
-    }
+    } 
 }
 export const Notification = {
     queries: notification_query,

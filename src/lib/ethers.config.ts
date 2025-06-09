@@ -1,14 +1,13 @@
-// import { ethers } from "ethers";
-// import config from './node.config';
+import { ethers } from "ethers";
 
-// const contractAddress = config.CONTRACT_ADDRESS || "";
-// const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL || "");
+const contractAddress = process.env.CONTRACT_ADDRESS || "";
+const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL || "");
 
 
-// const adminPrivateKey = config.ADMIN_PRIVATE_KEY || "";
-// const adminWallet = new ethers.Wallet(adminPrivateKey, provider);
-// console.log("Admin Wallet",adminPrivateKey,adminWallet.address);
+const adminPrivateKey = process.env.ADMIN_PRIVATE_KEY || "";
+const adminWallet = new ethers.Wallet(adminPrivateKey, provider);
+console.log("Admin Wallet",adminPrivateKey,adminWallet.address);
 
-// export { contractAddress, provider, adminWallet };
+export { contractAddress, provider, adminWallet };
 
 

@@ -7,7 +7,7 @@ export const typedefs = `#graphql
         latitude:String!
         longitude:String!
         evidence: [EvidenceInput]
-        participants: [CaseParticipantInput]                
+        participant: [CaseParticipantInput]                
     },
     input EvidenceInput {
         id: String

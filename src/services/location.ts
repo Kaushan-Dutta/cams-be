@@ -9,9 +9,9 @@ class Locationservice{
     private static async getLocationDetails(latitude:number,longitude:number){
         console.log("Latitude: ",latitude,"Longitude: ",longitude);
         const url=`https://us1.locationiq.com/v1/reverse?key=${API_KEY}&lat=${latitude}&lon=${longitude}&format=json&`;
-        // console.log(url);
+        console.log(url);
         const res=await axios.get(url);
-        // console.log(res);
+        console.log(res);
         return {
             longitude:longitude,
             latitude:latitude,
@@ -40,7 +40,7 @@ class Locationservice{
     }
     private static async getLocationIfExists(latitude:number,longitude:number){
         console.log("Args:Inside GetLocationIfExists",latitude,longitude);
-        return db.location.findUnique({
+        return db.location.findFirst({
             where:{
                 latitude:latitude,
                 longitude:longitude

@@ -16,6 +16,59 @@ export type InputProps = {
     context?: any
 }
 
+// io.on("connection", (socket) => {
+//     console.log("New client connected:", socket.id);
+//     socket.on("find-match", (user) => {
+//       const { id, topic, gender } = user;
+  
+//       const existingUser = users.find((u) => u.id === id);
+//       if (!existingUser) {
+//         users.push({
+//           id: id,
+//           socketId: socket.id,
+//           topic: topic,
+//           gender: gender,
+//         });
+//         console.log("New user connected:", id);
+//       }
+  
+//       console.log("Users", users);
+  
+//       let bestMatch = [];
+//       // if (users.length == 2) {
+//       //   bestMatch.push(users[0]);
+//       //   bestMatch.push(users[1]);
+//       // } else {
+//         for (let i = 0; i < users.length - 1; i++) {
+//           for (let j = i + 1; j < users.length; j++) {
+//             // if (users[i].topic === users[j].topic) {
+//             //   bestMatch.push(users[i]);
+//             //   bestMatch.push(users[j]);
+//             //   break;
+//             // }
+//             bestMatch.push(users[i]);
+//             bestMatch.push(users[j]);
+//           }
+//         }
+      
+//       console.log("Best Match", bestMatch);
+//       if (bestMatch.length > 0) {
+//         const user1 = bestMatch[0];
+//         const user2 = bestMatch[1];
+  
+//         // socket.emit("match-found", { user1, user2 });
+//         io.to(user1.socketId).emit("match-found", bestMatch);
+//         io.to(user2.socketId).emit("match-found", bestMatch);
+  
+//         users = users.filter((u) => u.id !== user1.id && u.id !== user2.id);
+//       }
+//     });
+//     socket.on("disconnect", () => {
+//       users = users.filter((u) => u.socketId !== socket.id);
+//       console.log("A user disconnected:", socket.id);
+//     });
+//   });
+  
 async function init() {
     const app = express();
 

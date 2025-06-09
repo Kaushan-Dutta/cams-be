@@ -65,6 +65,12 @@ enum CaseParticipantType {
   OTHER
 }
 
+enum GenderType {
+  MALE
+  FEMALE
+  OTHER
+}
+
 //CX{random(8)}
 model Account {
   id         String    @id
@@ -82,15 +88,15 @@ model Account {
   alert            Alert[]
   caseAgencyMap    CaseAgencyMap[]
   DigitalCard      DigitalCard[]
-  CaseParticipants CaseParticipants[]
+  CaseParticipants CaseParticipant[]
 
   @@map("accounts")
 }
 
 model Location {
   id        String  @id @default(uuid())
-  longitude Float   @unique
-  latitude  Float   @unique
+  longitude Float
+  latitude  Float
   pincode   String?
   state     String?
   district  String?
@@ -147,7 +153,7 @@ model Evidence {
   @@map("evidences")
 }
 
-model CaseParticipants {
+model CaseParticipant {
   id        String              @id @default(uuid())
   type      CaseParticipantType
   name      String?
@@ -182,7 +188,7 @@ model CaseApplication {
   caseAgencyMap CaseAgencyMap[]
 
   evidence     Evidence[]
-  participants CaseParticipants[]
+  participant CaseParticipant[]
   caseFile     CaseFile[]
 
   @@map("cases")
@@ -238,12 +244,14 @@ model Event {
 }
 
 model DigitalCard {
-  id         String   @id
-  account    Account  @relation(fields: [id], references: [id])
+  id         String     @id
+  account    Account    @relation(fields: [id], references: [id])
   name       String
   phone      String
   document   String
-  location   Location @relation(fields: [locationId], references: [id])
+  gender     GenderType
+  dob        DateTime
+  location   Location   @relation(fields: [locationId], references: [id])
   locationId String
 
   txHash String?

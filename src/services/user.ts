@@ -21,7 +21,7 @@ class UserService {
     public static getCases(payload) {
         console.log("Args:Inside the getCases", payload);
 
-        return db.caseParticipants.findMany({
+        return db.caseParticipant.findMany({
             where: {
                 type:'COMPLAINANT',
                 accountId: payload.accounId

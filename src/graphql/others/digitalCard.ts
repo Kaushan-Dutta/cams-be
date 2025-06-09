@@ -4,6 +4,7 @@ import DigitalCardService from "../../services/digitalcard";
 import AccountService from "../../services/account";
 // import TransactionService from "../../services/transaction";
 import Locationservice from "../../services/location";
+import AgencyService from "../../services/agency";
 
 const digitalcard_query = `#graphql
     getCard: Response
@@ -31,18 +32,23 @@ const mutations = {
     createCard: async (parent:any, args:any, context:any) => {
         console.log("Args:Outside", args.data);
         try {
-            const latitude = Math.round(args.data.latitude * 1000) / 1000;
-            const longitude = Math.round(args.data.longitude * 1000) / 1000;
+            const lat = Math.round(args.data.latitude * 1000) / 1000;
+            const long = Math.round(args.data.longitude * 1000) / 1000;
             
-            const location = await Locationservice.addLocationDetails(latitude, longitude);
+            const location = await Locationservice.addLocationDetails(lat, long);
             if (!location) {
                 throw new ApiError(404, "Location not regsiterded", {}, false);
             }
-            const card = await DigitalCardService.applyDigitalCard({id:context.user.id,locationId:location.id,...args.data});
+            const {latitude,longitude,...cardData}=args.data;
+            const card = await DigitalCardService.applyDigitalCard({id:context.user.id,locationId:location.id,...cardData});
             // console.log("the card outside",card)
+            if(!card){
+                throw new ApiError(500, "Error creating card", {}, false);
+            }
+            const getNearestAgency=await AgencyService.getNearestAgency({latitude,longitude});
             // const blockTransaction=await TransactionService.applyForCard({ cardId:card?.cardId, agencyId:card?.agencyId,userId:context.user.id } )
             // console.log(blockTransaction);
-            return new ApiResponse(201, "Application Received", card)
+            return new ApiResponse(201, "Application Received", {card,getNearestAgency});
         }
         catch (err: any) {
             throw new ApiError(500, err.message, {}, false);

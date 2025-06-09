@@ -13,7 +13,7 @@ class CaseService {
                 case: {
                     include: {
                         evidence: true,
-                        participants: true,
+                        participant: true,
                         location: true
                     }
                 },
@@ -96,7 +96,7 @@ class CaseService {
         console.log("Args:Inside UpdateCaseParticipant", payload);
         const { caseId, participant } = payload
         for (let i = 0; i < participant.length; i++) {
-            await db.caseParticipants.create({
+            await db.caseParticipant.create({
                 data: {
                     caseId,
                     ...participant[i],
@@ -107,10 +107,13 @@ class CaseService {
     public static async getComplainerId(payload:any){
         const {caseId}=payload;
         console.log("Args:Inside GetComplainerId",payload);
-        return await db.caseParticipants.findFirst({
+        return await db.caseParticipant.findFirst({
             where:{
                 caseId:caseId,
                 type:'COMPLAINANT'
+            },
+            select:{
+                accountId:true
             }
         })
     }
