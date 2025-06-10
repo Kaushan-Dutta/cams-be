@@ -15,7 +15,7 @@
       "use": "@vercel/node",
       "config": {
         "installCommand": "npm install",
-        "buildCommand": "npm run build && npx prisma migrate deploy"
+        "buildCommand": "prisma generate && npm run build && npx prisma migrate deploy"
       }
     }
   ],
